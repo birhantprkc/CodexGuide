@@ -39,15 +39,19 @@
 }
 
 .vp-nav-links {
-  column-gap: 0.125rem;
+  column-gap: 1.5rem;
 }
 
 .vp-nav-item {
-  margin-inline: 0.125rem;
+  margin-inline: 0;
 }
 
 .vp-nav-item > .route-link,
 .vp-dropdown-title {
+  display: inline-flex;
+  align-items: center;
+  height: 2rem;
+  line-height: 1;
   font-size: 1.05rem;
   font-weight: 600;
 }
@@ -62,10 +66,7 @@
 }
 
 .vp-dropdown-title {
-  display: inline-flex;
-  align-items: center;
   gap: 0.15rem;
-  height: 2rem;
 }
 
 .vp-dropdown {
