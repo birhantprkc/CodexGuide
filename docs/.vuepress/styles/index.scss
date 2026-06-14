@@ -20,12 +20,36 @@
   letter-spacing: 0;
 }
 
+#markdown-content > p > img {
+  display: block;
+  box-sizing: border-box;
+  margin: 1.25rem auto;
+  border: 1px solid rgb(15 23 42 / 14%);
+  border-radius: 3px;
+  background: var(--vp-c-bg);
+  box-shadow:
+    0 0 0 1px rgb(15 23 42 / 5%),
+    0 6px 16px rgb(15 23 42 / 12%);
+}
+
+#markdown-content > p > img[src$=".svg"] {
+  box-shadow:
+    0 0 0 1px rgb(15 23 42 / 5%),
+    0 4px 12px rgb(15 23 42 / 10%);
+}
+
 .vp-footer-wrapper {
   border-top: 1px solid var(--vp-c-border);
 }
 
 .vp-navbar {
   overflow: visible;
+}
+
+.vp-navbar-start,
+.vp-navbar-center,
+.vp-navbar-end {
+  min-width: 0;
 }
 
 .vp-site-name {
@@ -39,15 +63,19 @@
 }
 
 .vp-nav-links {
-  column-gap: 0.125rem;
+  column-gap: 1.5rem;
 }
 
 .vp-nav-item {
-  margin-inline: 0.125rem;
+  margin-inline: 0;
 }
 
 .vp-nav-item > .route-link,
 .vp-dropdown-title {
+  display: inline-flex;
+  align-items: center;
+  height: 2rem;
+  line-height: 1;
   font-size: 1.05rem;
   font-weight: 600;
 }
@@ -61,11 +89,138 @@
   position: relative;
 }
 
+.vp-nav-links > .vp-nav-item:has(> .vp-dropdown-wrapper > .vp-dropdown-title[aria-label="更多导航"]) {
+  display: none;
+}
+
 .vp-dropdown-title {
-  display: inline-flex;
-  align-items: center;
   gap: 0.15rem;
-  height: 2rem;
+}
+
+@media (max-width: 1700px) {
+  .vp-nav-links {
+    column-gap: 0.85rem;
+  }
+
+  .vp-site-name {
+    font-size: 1.05rem;
+  }
+
+  .vp-nav-item > .route-link,
+  .vp-dropdown-title {
+    font-size: 0.96rem;
+  }
+
+  .slimsearch-placeholder,
+  .slimsearch-key-hints {
+    display: none;
+  }
+
+  .vp-nav-links > .vp-nav-item:has(> .vp-dropdown-wrapper > .vp-dropdown-title[aria-label="更多导航"]) {
+    display: block;
+  }
+
+  .vp-nav-links > .vp-nav-item:has(> .vp-dropdown-wrapper > .vp-dropdown-title[aria-label="交流群"]) {
+    display: none;
+  }
+}
+
+@media (max-width: 1520px) {
+  .vp-nav-links > .vp-nav-item:has(> .vp-dropdown-wrapper > .vp-dropdown-title[aria-label="实战案例导航"]) {
+    display: none;
+  }
+}
+
+@media (max-width: 1400px) {
+  .vp-nav-links > .vp-nav-item:has(> .vp-dropdown-wrapper > .vp-dropdown-title[aria-label="教程导航"]) {
+    display: none;
+  }
+}
+
+@media (max-width: 1280px) {
+  .vp-nav-links > .vp-nav-item:has(> .vp-dropdown-wrapper > .vp-dropdown-title[aria-label="资源导航"]) {
+    display: none;
+  }
+}
+
+@media (max-width: 1040px) {
+  .vp-site-name {
+    max-width: 8.5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 1160px) {
+  .vp-nav-links > .vp-nav-item:has(> .vp-dropdown-wrapper > .vp-dropdown-title[aria-label="配置导航"]) {
+    display: none;
+  }
+}
+
+@media (max-width: 840px) {
+  .vp-nav-links > .vp-nav-item:has(> .route-link[href="/platform/"]) {
+    display: none;
+  }
+}
+
+@media (min-width: 681px) and (max-width: 719px) {
+  .vp-navbar-center,
+  .vp-nav-links {
+    display: flex !important;
+  }
+
+  .vp-nav-links {
+    column-gap: 0.75rem;
+  }
+
+  .vp-nav-links > .vp-nav-item {
+    display: block !important;
+  }
+
+  .vp-nav-links > .vp-nav-item:has(> .route-link[href="/platform/"]),
+  .vp-nav-links > .vp-nav-item:has(> .vp-dropdown-wrapper > .vp-dropdown-title[aria-label="配置导航"]),
+  .vp-nav-links > .vp-nav-item:has(> .vp-dropdown-wrapper > .vp-dropdown-title[aria-label="资源导航"]),
+  .vp-nav-links > .vp-nav-item:has(> .vp-dropdown-wrapper > .vp-dropdown-title[aria-label="教程导航"]),
+  .vp-nav-links > .vp-nav-item:has(> .vp-dropdown-wrapper > .vp-dropdown-title[aria-label="实战案例导航"]),
+  .vp-nav-links > .vp-nav-item:has(> .vp-dropdown-wrapper > .vp-dropdown-title[aria-label="交流群"]) {
+    display: none !important;
+  }
+
+  .vp-nav-item > .route-link,
+  .vp-dropdown-title {
+    font-size: 0.92rem;
+  }
+}
+
+@media (min-width: 560px) and (max-width: 680px) {
+  .vp-navbar-center,
+  .vp-nav-links {
+    display: flex !important;
+  }
+
+  .vp-nav-links {
+    column-gap: 0.7rem;
+  }
+
+  .vp-nav-links > .vp-nav-item {
+    display: block !important;
+  }
+
+  .vp-nav-links > .vp-nav-item:has(> .route-link[href="/guide/00-overview.html"]),
+  .vp-nav-links > .vp-nav-item:has(> .route-link[href="/platform/"]),
+  .vp-nav-links > .vp-nav-item:has(> .vp-dropdown-wrapper > .vp-dropdown-title[aria-label="配置导航"]),
+  .vp-nav-links > .vp-nav-item:has(> .vp-dropdown-wrapper > .vp-dropdown-title[aria-label="资源导航"]),
+  .vp-nav-links > .vp-nav-item:has(> .vp-dropdown-wrapper > .vp-dropdown-title[aria-label="教程导航"]),
+  .vp-nav-links > .vp-nav-item:has(> .vp-dropdown-wrapper > .vp-dropdown-title[aria-label="实战案例导航"]),
+  .vp-nav-links > .vp-nav-item:has(> .vp-dropdown-wrapper > .vp-dropdown-title[aria-label="交流群"]) {
+    display: none !important;
+  }
+
+  .vp-nav-item > .route-link,
+  .vp-dropdown-title {
+    font-size: 0.9rem;
+  }
 }
 
 .vp-dropdown {
@@ -79,7 +234,10 @@
 }
 
 .vp-dropdown-wrapper:hover .vp-dropdown,
-.vp-dropdown-wrapper.open .vp-dropdown {
+.vp-dropdown-wrapper.open .vp-dropdown,
+.vp-dropdown-wrapper:focus-within .vp-dropdown {
+  visibility: visible;
+  opacity: 1;
   transform: none;
 }
 
@@ -471,42 +629,82 @@
 
 .setting-card-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 1rem;
   margin: 1.25rem 0 2rem;
 }
 
 .setting-card {
+  display: flex;
+  flex-direction: column;
   min-width: 0;
-  padding: 1rem;
+  overflow: hidden;
   border: 1px solid var(--vp-c-border);
   border-radius: 8px;
   background: var(--vp-c-bg);
 }
 
-.setting-card strong {
+.setting-card-body {
+  padding: 1rem;
+}
+
+.setting-card-body > strong,
+.setting-card-title {
   display: block;
   color: var(--vp-c-text);
   font-size: 1.05rem;
+  font-weight: 700;
   line-height: 1.45;
 }
 
-.setting-card p {
+.setting-card-body p {
   margin: 0.55rem 0 0;
   color: var(--vp-c-text-mute);
   line-height: 1.75;
 }
 
-.setting-card em {
-  display: inline-block;
-  margin-top: 0.75rem;
-  padding: 0.2rem 0.55rem;
-  border-radius: 999px;
-  background: var(--vp-c-accent-soft);
+.setting-card-body ul {
+  margin: 0.75rem 0 0;
+  padding-inline-start: 1.1rem;
+}
+
+.setting-card-body li {
+  margin: 0.35rem 0;
+  color: var(--vp-c-text-mute);
+  line-height: 1.7;
+}
+
+.setting-card-body li ul {
+  margin: 0.35rem 0 0.1rem;
+  padding-inline-start: 1.25rem;
+  list-style-type: circle;
+}
+
+.setting-card-body li li {
+  margin: 0.25rem 0;
+  line-height: 1.65;
+}
+
+.setting-card-body li strong {
+  display: inline;
+  color: var(--vp-c-text);
+  font-size: inherit;
+}
+
+.setting-card-recommend {
+  margin-top: auto;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--vp-c-border);
+  background: var(--vp-c-bg-soft);
+  color: var(--vp-c-text-mute);
+  font-size: 0.92rem;
+  line-height: 1.65;
+}
+
+.setting-card-recommend strong {
+  display: inline;
   color: var(--vp-c-accent);
-  font-size: 0.85rem;
-  font-style: normal;
-  font-weight: 700;
+  font-size: inherit;
 }
 
 .codex-update-layout {

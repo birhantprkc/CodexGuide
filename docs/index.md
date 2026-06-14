@@ -241,7 +241,7 @@ Codex 的能力会出现在 App、CLI、Cloud、IDE、ChatGPT 和集成生态里
   <li>用 <a href="/guide/15-agents-md">AGENTS.md</a> 写清项目命令、代码风格和禁止事项。</li>
   <li>用 <a href="/guide/16-sandbox-approvals">沙盒与审批</a> 管理文件、网络、凭据和高风险命令。</li>
   <li>用 <a href="/practice/team-playbook">团队 playbook</a> 统一任务模板、复盘结构和案例沉淀。</li>
-  <li>用 <a href="/guide/18-troubleshooting">排障手册</a> 快速定位登录、权限、依赖和执行异常。</li>
+  <li>用 <a href="/guide/19-troubleshooting">排障手册</a> 快速定位登录、权限、依赖和执行异常。</li>
 </ul>
 
 </div>

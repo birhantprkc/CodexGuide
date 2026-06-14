@@ -4,62 +4,87 @@ description: "Codex 学习路线，从入口认知、任务闭环、工程化验
 
 # 学习路线
 
-CodexGuide 按“认识入口、跑通任务、建立方法、团队沉淀”四层组织。你可以从 CLI 入门，也可以从桌面端、ChatGPT 或云端任务开始；关键在于先理解每个入口适合承载的任务节奏。
 
 ::: tip 最后核对
-官方资料最后核对日期：2026-05-27。核心来源包括 [OpenAI Codex 产品页](https://openai.com/codex/)、[Codex 文档入口](https://developers.openai.com/codex/)、[Codex CLI 官方仓库](https://github.com/openai/codex) 与 [Codex Help Center](https://help.openai.com/en/articles/11369540-codex-in-chatgpt)。
+官方资料最后核对日期：2026-06-12。核心来源包括 [OpenAI Codex 产品页](https://openai.com/codex/)、[Codex 文档入口](https://developers.openai.com/codex/)、[Codex CLI 官方仓库](https://github.com/openai/codex) 与 [Codex Help Center](https://help.openai.com/en/articles/11369540-codex-in-chatgpt)。
 :::
 
 ![Codex 使用入口地图](/images/codex-surfaces.svg?v=20260611)
 
-## 你要先建立的全局理解
+## Codex 的产品形态
 
-Codex 是 OpenAI 面向软件工程与知识工作场景的代理式工作流。它可以在多个入口中出现：
+Codex 有桌面 App、命令行、编辑器插件和网页几种形态。
 
-- CLI：贴近终端和本地仓库，适合快速修改、运行命令、排障和验证。
-- 桌面 App：适合本地多任务、Skills、Automations、子代理和插件化工作流。
-- Web / Cloud / ChatGPT：适合连接仓库、分派长任务、并行处理、生成 PR 或回答代码问题。
-- IDE：适合贴近编辑器上下文的解释、修改、审查和局部任务。
-- 集成生态：GitHub、Slack、Linear、MCP 等入口让 Codex 接入团队协作链路。
+- 桌面 App：我们最熟悉的软件形态，第一次上手推荐用这个。选一个文件夹，让 Codex 读文件、改文档、整理内容，或者直接聊天。
+- CLI：终端里的 Codex，在项目文件夹里读代码、改文件、跑命令。
+- Cloud / Web / ChatGPT：任务交给云端处理，或在 ChatGPT 里跟进项目。
+- IDE：在 VS Code 等编辑器里用 Codex 插件，喜欢集成开发环境的开发者适用。
+- GitHub、Slack、Linear、MCP 等集成：偏团队和进阶场景。
 
-## 四阶段路线
+第一次用 Codex，推荐从桌面 App 开始。界面直观，功能齐全，对新手友好。
 
-| 阶段 | 目标 | 推荐页面 | 验收标准 |
-| --- | --- | --- | --- |
-| 入门 | 跑通一个低风险任务 | [桌面 App 下载与安装](./01-app-installation.md)、[手机端协同](./04-mobile-control-desktop.md)、[连接第三方 API](./05-third-party-api.md)、[用 Codex 完成第一个任务](./06-app-first-task.md) | 能用 Codex 桌面 App 完成一次完整的任务闭环 |
-| 进阶 | 形成稳定任务方法 | [了解 Codex 基本组成](./03-app-overview.md)、[实践方法](/practice/) | 能写清楚目标、范围、约束、验证和交付 |
-| 工程化 | 进入真实项目流程 | [任务执行机制](./07-task-execution.md)、[配置与扩展](/configuration/) | 每次改动都有 diff、测试结果和风险说明 |
-| 团队化 | 沉淀规则和案例 | [AGENTS.md](./15-agents-md.md)、[团队实践](/practice/team-playbook.md) | 项目有规则文件、案例库、排障手册和贡献路径 |
 
-## 新手推荐路径
+## 快速开始
 
-**从 App 开始（推荐）：**
+1. [下载安装 Codex 桌面 App](./01-app-installation.md)，先把软件打开。
+2. 按需了解 [订阅 ChatGPT Plus](./02-subscribe-plus.md)，确认账号能不能用 Codex。OpenAI Help Center 说明 Codex 包含在符合条件的 ChatGPT 计划中，包括 Free 档；具体用量限制因计划而异。
+3. 阅读 [了解 Codex 基本组成](./03-app-overview.md)，知道项目、对话、设置大概在哪里。
+4. 跟着 [用 Codex 完成第一个任务](./06-app-first-task.md)，选一件小任务开始练手。
+5. 如果你常用手机，可以再看 [手机端如何跟进桌面任务](./04-mobile-control-desktop.md)。
+6. 如果你需要第三方 API，再看 [连接第三方 API](./05-third-party-api.md)。
 
-1. [下载安装 Codex 桌面 App](./01-app-installation.md)，完成登录。
-2. 按需 [订阅 ChatGPT Plus](./02-subscribe-plus.md)，解锁完整功能。
-3. 阅读 [了解 Codex 基本组成](./03-app-overview.md)，认识界面结构。
-4. 了解 [手机端如何跟进桌面任务](./04-mobile-control-desktop.md)，避免把它误解成远程桌面。
-5. 按需了解 [连接第三方 API](./05-third-party-api.md) 的风险和基本方式；不需要第三方 API 的新手可以跳过。
-6. 跟着 [用 Codex 完成第一个任务](./06-app-first-task.md) 走完一次完整操作闭环。
+第一轮目标：装好 Codex，能跟它正常交流，让它读一个你指定的文件夹。之后结合真实需求，试着完成一个小任务。
 
-**从 CLI 开始（适合开发者）：**
+## 使用 Codex 开发
 
-1. 阅读 [入口地图](/platform/)。
-2. [安装 CLI](./12-cli-installation.md)，完成一次登录和版本检查。
-3. 用”只读仓库总结”任务确认 Codex 能理解项目。
-4. 执行一个低风险修改，例如修文档、补测试或修复单个失败用例。
-5. 建立第一个 `AGENTS.md`，写入项目命令和禁止事项。
-6. 阅读 [配置与扩展](/configuration/)，准备 `config.toml`、Skills 和安全边界。
-7. 把成功任务整理成案例，放进团队知识库。
+用过 Claude Code 的话，Codex 很容易上手。没用过也没关系，像平时用 AI 一样自然地用就行。
 
-## 非开发者也可以怎么用
+推荐顺序：
 
-Codex 的核心能力是“理解一组文件、执行有边界的任务、产出可复核结果”。这让它也适合：
+1. 先看 [入口地图](/platform/)，知道 CLI、桌面 App、Cloud 和 IDE 分别适合什么。
+2. 阅读 [CLI 安装与登录](./12-cli-installation.md)，确认命令能正常运行。
+3. 跟着 [第一次让 Codex 改代码](./13-cli-first-run.md)，从文档、测试或一个小 bug 开始。
+4. 阅读 [任务执行机制](./07-task-execution.md)，理解它会读哪些文件、运行哪些命令、怎么汇报结果。
+5. 了解 [AGENTS.md](./15-agents-md.md)，把项目规则写给 Codex 看。
+6. 阅读 [沙盒与审批](./16-sandbox-approvals.md)，知道哪些操作需要先确认。
 
-- 阅读陌生代码库，输出学习路线。
-- 整理项目文档、README、迁移说明和发布说明。
-- 审阅配置、依赖、脚本和 CI 失败原因。
-- 把重复流程沉淀成模板、Skill 或自动化提醒。
-- 辅助产品、运营、技术写作和团队知识管理。
+在开发过程中，你会碰到许多专有名词，这里先记住几个词就够了：
+- **仓库（repository / repo）**：  
+  一个项目的“家”。代码、文档、配置文件通常放这里，一般用 Git 记录变化。
 
-下一步建议读：[入口地图](/platform/)。
+- **diff**：  
+  “改了哪里”的对比清单。告诉你文件修改前什么样，修改后变成什么样。
+
+- **PR（Pull Request）**：  
+  理解为“我改好了，请你帮我看一下”。  
+  团队协作时先提交改动，让别人审核，通过后再合并进主项目。
+
+- **CI（Continuous Integration）**：  
+  自动检查流程。  
+  提交代码后，系统自动跑测试、检查格式、尝试构建，确认改动有没有明显问题。
+
+- **`AGENTS.md`**：  
+  给 AI 编程助手看的“项目说明书”。  
+  告诉 Codex / Agent 项目规则、怎么运行、怎么测试、写代码注意什么。每次对话时，Agent 通常把它作为重要上下文参考。
+
+不用强记所有名词。碰到陌生的词，直接让 Codex 解释；用多了自然熟。
+
+## 使用 Codex 完成日常任务
+
+很多人以为 Codex 只能写代码。其实只要有文件、有目标、有结果可检查，它都能帮上忙。比如：
+
+- 把旅游攻略、酒店链接和预算表放在一起，让 Codex 帮你整理成一份行程清单。
+- 读几份课程资料或 PDF，提炼重点、整理复习提纲。
+- 把会议录音转写稿、聊天记录或零散备忘，整理成待办事项。
+- 检查一份报名表、活动通知或教程，看看有没有缺步骤、时间写错、链接没说清楚。
+- 把每周报销、周报、资料归档的重复步骤写成模板，下次直接复用。
+- 整理家庭账单、购物清单、搬家清单、活动分工表这类零散文件。
+
+从最近实际需要处理的小事开始。任务说得越具体，Codex 解决得越快。
+
+## 下一步从哪里点
+
+- 还没安装？：从 [桌面 App 下载与安装](./01-app-installation.md) 开始。
+- 已经装好了：直接做 [第一个任务](./06-app-first-task.md)。
+- 想先知道不同入口怎么选：看 [入口地图](/platform/)。
+- 准备改真实项目：看 [CLI 安装与登录](./12-cli-installation.md)。

@@ -78,7 +78,9 @@ export const pageDescriptions: Record<string, string> = {
     "Codex 沙盒、审批与安全边界指南，解释只读、写入、网络、危险命令和人工确认策略，适合高风险任务前检查。",
   "/guide/17-cloud-ide-app.html":
     "Codex Cloud 使用指南，说明云端任务、仓库连接、长任务、PR 工作流和与本地 App、IDE 的差异。",
-  "/guide/18-troubleshooting.html":
+  "/guide/18-hooks.html":
+    "Codex Hooks 入门说明，介绍 Hooks 的作用、配置位置、事件类型、信任机制和安全建议。",
+  "/guide/19-troubleshooting.html":
     "Codex 排障手册，汇总登录、安装、权限、依赖、命令失败和任务执行异常的定位与恢复路径，帮助快速继续工作。",
   "/platform/":
     "Codex 使用教程入口地图，比较 CLI、桌面 App、Cloud、IDE、ChatGPT 和集成生态，帮助选择合适工作入口。",
