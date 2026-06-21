@@ -89,10 +89,6 @@
   position: relative;
 }
 
-.vp-nav-links > .vp-nav-item:has(> .vp-dropdown-wrapper > .vp-dropdown-title[aria-label="更多导航"]) {
-  display: none;
-}
-
 .vp-dropdown-title {
   gap: 0.15rem;
 }
@@ -114,10 +110,6 @@
   .slimsearch-placeholder,
   .slimsearch-key-hints {
     display: none;
-  }
-
-  .vp-nav-links > .vp-nav-item:has(> .vp-dropdown-wrapper > .vp-dropdown-title[aria-label="更多导航"]) {
-    display: block;
   }
 
 }

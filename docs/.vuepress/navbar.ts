@@ -78,34 +78,10 @@ export default navbar([
   },
   { text: "入口地图", icon: "layout", link: "/platform/" },
   {
-    text: "配置",
-    icon: "gear",
-    ariaLabel: "配置导航",
-    children: configurationItems,
-  },
-  {
-    text: "资源",
-    icon: "box",
-    ariaLabel: "资源导航",
-    children: resourceItems,
-  },
-  {
     text: "教程",
     icon: "book",
     ariaLabel: "教程导航",
     children: guideItems,
-  },
-  {
-    text: "更多",
-    icon: "more",
-    ariaLabel: "更多导航",
-    children: [
-      { text: "配置", icon: "gear", link: "/configuration/" },
-      { text: "资源", icon: "box", link: "/reference/" },
-      { text: "教程", icon: "book", link: "/guide/01-app-installation.md" },
-      { text: "交流群", icon: "message", link: "/community/roadmap.md" },
-      { text: "赞助商", icon: "star", link: "https://unity2.ai/register?source=canghe" },
-    ],
   },
   {
     text: "交流群",
@@ -118,5 +94,17 @@ export default navbar([
     icon: "star",
     ariaLabel: "赞助商导航",
     children: sponsorItems,
+  },
+  {
+    text: "更多",
+    icon: "more",
+    ariaLabel: "更多导航",
+    children: [
+      { text: "配置", icon: "gear", link: "/configuration/" },
+      { text: "资源", icon: "box", link: "/reference/" },
+      { text: "教程", icon: "book", link: "/guide/01-app-installation.md" },
+      { text: "交流群", icon: "message", link: "/community/roadmap.md" },
+      { text: "赞助商", icon: "star", link: "https://unity2.ai/register?source=canghe" },
+    ],
   },
 ]);
