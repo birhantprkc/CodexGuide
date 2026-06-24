@@ -65,6 +65,7 @@ const communityItems = [
 const sponsorItems = [
   { text: "Unity2.ai", link: "https://unity2.ai/register?source=canghe" },
   { text: "PayForChat", link: "https://payforchat.com/register?ref=XJKHTC7N" },
+  { text: "Muskapi", link: "https://muskapi.com/register?utm_source=codexguide&utm_medium=website" },
 ];
 
 export default navbar([
