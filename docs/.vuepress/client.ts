@@ -18,6 +18,8 @@ export default defineClientConfig({
         if (event.detail === 0) return;
 
         const target = event.target as Element | null;
+        if (target?.closest(".vp-dropdown")) return;
+
         const button = target?.closest<HTMLButtonElement>(".vp-dropdown-title");
         const link = button ? navbarDropdownLinks[button.getAttribute("aria-label") ?? ""] : null;
 
