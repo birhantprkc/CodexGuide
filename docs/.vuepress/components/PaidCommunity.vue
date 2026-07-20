@@ -186,7 +186,7 @@ onBeforeUnmount(() => {
   <main class="paid-community-shell" :class="{ 'is-direct': props.direct }">
     <section v-if="!props.direct" class="paid-community-hero">
       <span class="paid-community-kicker">CodexGuide Community</span>
-      <h1>加入付费交流群</h1>
+      <h1>加入高质量 Codex 交流群</h1>
       <p>用一个小门槛筛选认真交流的同频伙伴，也让资料整理、内容更新和日常群维护能够持续下去。</p>
     </section>
 
