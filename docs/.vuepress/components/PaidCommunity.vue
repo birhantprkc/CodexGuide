@@ -196,7 +196,7 @@ onBeforeUnmount(() => {
     <section v-if="!props.direct" class="paid-community-top">
       <div class="paid-community-top-inner">
         <div class="paid-community-hero">
-          <span class="paid-community-kicker">CodexGuide 高质量交流群</span>
+          <span class="paid-community-kicker">CodexGuide 目前已经有 6 个高质量交流群</span>
           <h1>把真实项目带进群里，<br>把可执行的方法带回去</h1>
           <p>和正在使用 Codex 的创作者、开发者与效率实践者，交流配置、任务设计、Skills、Plugins、自动化与排障经验。</p>
 
