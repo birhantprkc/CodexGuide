@@ -14,7 +14,7 @@ actions:
   - text: 阅读学习路线
     link: /guide/
     type: default
-  - text: 加入付费交流群
+  - text: 加入交流群
     link: /community/join.md
     type: default
 ---
