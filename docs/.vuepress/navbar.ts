@@ -44,7 +44,13 @@ const moreItems = [
   { text: "快速上手", icon: "rocket", link: "/start/" },
   { text: "进阶教程", icon: "book", link: "/advanced/" },
   { text: "实战案例", icon: "lightbulb", link: "/recipes/" },
-  { text: "参考手册", icon: "gear", link: "/manual/" },
+  {
+    text: "参考手册",
+    icon: "gear",
+    link: "/manual/",
+    ariaLabel: "参考手册导航",
+    children: manualItems,
+  },
   { text: "社区共建", icon: "people", link: "/community/roadmap.md" },
   { text: "赞助商", icon: "star", link: "/sponsors/" },
 ];
@@ -87,13 +93,6 @@ export default navbar([
     link: "/recipes/",
     ariaLabel: "实战案例导航",
     children: recipeItems,
-  },
-  {
-    text: "参考手册",
-    icon: "gear",
-    link: "/manual/",
-    ariaLabel: "参考手册导航",
-    children: manualItems,
   },
   {
     text: "赞助商",
