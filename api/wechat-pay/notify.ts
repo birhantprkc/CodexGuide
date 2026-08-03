@@ -46,6 +46,9 @@ export default {
 
       return new Response(null, { status: 204 });
     } catch (error) {
+      if (error instanceof AppError) {
+        console.error("WeChat payment notification rejected", error.code);
+      }
       return errorResponse(error);
     }
   },

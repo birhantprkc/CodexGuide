@@ -57,6 +57,9 @@ export default {
       }
       return new Response(null, { status: 204 });
     } catch (error) {
+      if (error instanceof AppError) {
+        console.error("WeChat refund notification rejected", error.code);
+      }
       return errorResponse(error);
     }
   },
