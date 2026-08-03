@@ -37,6 +37,10 @@ description: "ChatGPT Plus 与 Pro 订阅指南，整理 Codex 可用性、账�
 
 ## 方法一：苹果礼品卡（最稳定，推荐优先尝试）
 
+### 支付宝购买
+
+
+
 适合已有 iOS 设备或愿意准备一台的用户。整个流程在国内支付宝内完成充值，不需要境外银行卡。
 
 **准备物品：**
@@ -62,6 +66,64 @@ description: "ChatGPT Plus 与 Pro 订阅指南，整理 Codex 可用性、账�
 ::: tip
 如果支付宝购买偶尔不稳定，可以通过代理访问苹果官网直接购买礼品卡，一次性多充值几个月额度，后续续订不需要重复操作。
 :::
+
+### 苹果官网购买
+
+**前提准备：**
+
+1、一个美区的APPID。
+2、招行 VISA 卡
+
+操作步骤：
+
+1、Clash 代理选择台湾地区（非必须，可视情况）
+
+2、打开苹果官方礼品卡购买页面：
+
+地址：https://applegiftcard.apple.com
+
+![](https://cdn.canghecode.com/blog/20260802164741.png)
+
+
+点击这里的 buy：
+
+![](https://cdn.canghecode.com/blog/20260802164918.png)
+
+选择 Email：
+
+![](https://cdn.canghecode.com/blog/20260802164954.png)
+
+填写相关信息，接收人和赠送人姓名和邮箱。（这里名字可以随便填）
+
+![](https://cdn.canghecode.com/blog/20260802165357.png)
+
+然后点 add to Bag
+
+![](https://cdn.canghecode.com/blog/20260802165443.png)
+
+然后选择 check out，这里需要登录你的美区 appid
+
+![](https://cdn.canghecode.com/blog/20260802165556.png)
+
+选择支付方式 VISA 卡：
+
+![](https://cdn.canghecode.com/blog/20260802165656.png)
+
+然后这个地方填自己的 VISA 卡信息就好啦：
+
+![](https://cdn.canghecode.com/blog/20260802165750.png)
+
+::: tip
+这里的地址和电话就实际选择国内地址和手机即可。
+:::
+
+最后一个是确认：
+
+![](https://cdn.canghecode.com/blog/20260802170049.png)
+
+
+
+
 
 ## 方法二：土耳其区 App Store（第三方经验，价格优先）
 
