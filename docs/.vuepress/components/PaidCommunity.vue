@@ -56,7 +56,7 @@ const orderId = ref<string | null>(null);
 const paymentEnabled = ref(false);
 const alipayEnabled = ref(false);
 const wechatEnabled = ref(false);
-const selectedProvider = ref<PaymentProvider>("alipay");
+const selectedProvider = ref<PaymentProvider>("wechat");
 const paymentQrDataUrl = ref<string | null>(null);
 const paymentExpiresAt = ref<number | null>(null);
 const remainingSeconds = ref(0);
@@ -144,7 +144,7 @@ const refreshStatus = async (): Promise<void> => {
   if (status.orderStatus === "PENDING") {
     selectedProvider.value = status.paymentProduct === "WECHAT_NATIVE" ? "wechat" : "alipay";
   } else if (!providerEnabled.value) {
-    selectedProvider.value = alipayEnabled.value ? "alipay" : "wechat";
+    selectedProvider.value = wechatEnabled.value ? "wechat" : "alipay";
   }
 
   if (selectedProvider.value === "wechat" && mobileBrowser.value) {
@@ -336,8 +336,9 @@ onMounted(async () => {
   document.addEventListener("visibilitychange", handlePollingAvailability);
   window.addEventListener("online", handlePollingAvailability);
   window.addEventListener("offline", handlePollingAvailability);
-  if (new URLSearchParams(window.location.search).get("provider") === "wechat") {
-    selectedProvider.value = "wechat";
+  const requestedProvider = new URLSearchParams(window.location.search).get("provider");
+  if (requestedProvider === "alipay" || requestedProvider === "wechat") {
+    selectedProvider.value = requestedProvider;
   }
   await retry();
 });
@@ -413,7 +414,7 @@ onBeforeUnmount(() => {
       <div v-if="!props.direct" class="paid-community-payment-notes" aria-label="支付与服务说明">
         <div>
           <ShieldCheckIcon aria-hidden="true" />
-          <span>支付宝 / 微信安全收款</span>
+          <span>微信 / 支付宝安全收款</span>
         </div>
         <div>
           <CheckCircleIcon aria-hidden="true" />
@@ -433,16 +434,16 @@ onBeforeUnmount(() => {
         >
           <button
             type="button"
-            :class="{ 'is-active': selectedProvider === 'alipay' }"
-            :disabled="!alipayEnabled || busy"
-            @click="selectProvider('alipay')"
-          >支付宝</button>
-          <button
-            type="button"
             :class="{ 'is-active': selectedProvider === 'wechat' }"
             :disabled="!wechatEnabled || busy"
             @click="selectProvider('wechat')"
           >微信支付</button>
+          <button
+            type="button"
+            :class="{ 'is-active': selectedProvider === 'alipay' }"
+            :disabled="!alipayEnabled || busy"
+            @click="selectProvider('alipay')"
+          >支付宝</button>
         </div>
 
         <div class="paid-community-status" role="status" aria-live="polite">
