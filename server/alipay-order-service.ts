@@ -92,12 +92,21 @@ export const prepareAlipayCommunityOrder = async (
 
   if (!current || current.status !== "PENDING") {
     try {
-      current = await insertPendingOrder(createOrderId(), buyerKey, COMMUNITY_PRICE_CENTS, "ALIPAY");
+      current = await insertPendingOrder(
+        createOrderId(),
+        buyerKey,
+        COMMUNITY_PRICE_CENTS,
+        "ALIPAY",
+        "ALIPAY_WEB",
+      );
     } catch (error) {
       if ((error as { code?: string }).code !== "23505") throw error;
-      current = await findCurrentOrder(buyerKey, "ALIPAY");
+      current = await findCurrentOrder(buyerKey);
       if (!current) throw error;
       if (current.status === "PAID") return { eligible: true, orderId: current.id };
+      if (current.payment_provider !== "ALIPAY") {
+        throw new AppError(409, "payment_method_conflict", "已有另一支付方式的待支付订单，请刷新后切换。" );
+      }
     }
   }
 
@@ -141,8 +150,11 @@ export const refundAlipayCommunityOrder = async (
   order: CommunityOrder,
   reason: string,
 ): Promise<{ refundRequestNo: string; status: "PROCESSING" | "REFUNDED" }> => {
+  if (order.payment_provider !== "ALIPAY" || order.status !== "PAID") {
+    throw new AppError(409, "order_not_refundable", "该订单当前无法通过支付宝退款。" );
+  }
   const refundRequestNo = order.refund_request_no || `AR${order.id}`;
-  await saveRefundRequest(order.id, refundRequestNo);
+  await saveRefundRequest(order.id, refundRequestNo, "ALIPAY");
   const result = await refundAlipayTrade(order, refundRequestNo, reason);
   assertAlipayApiSuccess(result, "trade refund");
 

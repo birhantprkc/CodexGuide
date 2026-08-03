@@ -8,6 +8,7 @@ import {
   QrCodeIcon,
   ShieldCheckIcon,
 } from "@heroicons/vue/24/outline";
+import QRCode from "qrcode";
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 
 import {
@@ -15,7 +16,16 @@ import {
   redirectToCommunityOrigin,
 } from "../community-runtime.js";
 
-type PageState = "checking" | "ready" | "paying" | "eligible" | "unavailable" | "error";
+type PageState =
+  | "awaiting"
+  | "checking"
+  | "eligible"
+  | "error"
+  | "mobile"
+  | "paying"
+  | "ready"
+  | "unavailable";
+type PaymentProvider = "alipay" | "wechat";
 
 type CommunityStatus = {
   authenticated: boolean;
@@ -23,12 +33,16 @@ type CommunityStatus = {
   groupQrReady?: boolean;
   orderId?: string | null;
   orderStatus?: string | null;
+  paymentProduct?: string | null;
+  sessionReady?: boolean;
   sessionUrl?: string;
 };
 
 type CreateOrderResponse = {
   eligible: boolean;
   orderId: string;
+  codeUrl?: string;
+  expiresAt?: string;
   paymentHtml?: string;
 };
 
@@ -37,12 +51,30 @@ const props = withDefaults(defineProps<{ direct?: boolean }>(), { direct: false 
 const state = ref<PageState>("checking");
 const accepted = ref(props.direct);
 const autoPayStarted = ref(false);
-const message = ref("正在确认支付宝支付会话和入群资格…");
+const message = ref("正在确认支付会话和入群资格…");
 const orderId = ref<string | null>(null);
 const paymentEnabled = ref(false);
+const alipayEnabled = ref(false);
+const wechatEnabled = ref(false);
+const selectedProvider = ref<PaymentProvider>("alipay");
+const paymentQrDataUrl = ref<string | null>(null);
+const paymentExpiresAt = ref<number | null>(null);
+const remainingSeconds = ref(0);
+const mobileBrowser = ref(false);
 const qrUrl = ref<string | null>(null);
+let pollingTimer: number | null = null;
+let countdownTimer: number | null = null;
+let pollCount = 0;
 
 const busy = computed(() => ["checking", "paying"].includes(state.value));
+const providerEnabled = computed(() =>
+  selectedProvider.value === "wechat" ? wechatEnabled.value : alipayEnabled.value,
+);
+const remainingLabel = computed(() => {
+  const minutes = Math.floor(remainingSeconds.value / 60);
+  const seconds = String(remainingSeconds.value % 60).padStart(2, "0");
+  return `${minutes}:${seconds}`;
+});
 
 const responseError = async (response: Response): Promise<string> => {
   try {
@@ -68,7 +100,7 @@ const loadGroupQr = async (): Promise<void> => {
   if (qrUrl.value) URL.revokeObjectURL(qrUrl.value);
   qrUrl.value = URL.createObjectURL(blob);
   state.value = "eligible";
-  message.value = "支付宝到账已确认，请使用微信识别下方二维码入群。";
+  message.value = "到账已确认，请使用微信识别下方二维码入群。";
 };
 
 const requestStatus = async (): Promise<CommunityStatus> => {
@@ -83,8 +115,8 @@ const requestStatus = async (): Promise<CommunityStatus> => {
 const refreshStatus = async (): Promise<void> => {
   let status = await requestStatus();
 
-  if (!status.authenticated) {
-    const response = await fetch(status.sessionUrl || "/api/auth/alipay/session", {
+  if (!status.authenticated || status.sessionReady === false) {
+    const response = await fetch(status.sessionUrl || "/api/auth/community/session", {
       credentials: "same-origin",
       cache: "no-store",
     });
@@ -96,28 +128,115 @@ const refreshStatus = async (): Promise<void> => {
   if (status.eligible) {
     if (status.groupQrReady === false) {
       state.value = "eligible";
-      message.value = "支付宝到账已确认，群二维码正在更新，请稍后刷新。";
+      message.value = "到账已确认，群二维码正在更新，请稍后刷新。";
       return;
     }
     await loadGroupQr();
     return;
   }
 
-  if (!paymentEnabled.value) {
+  if (!paymentEnabled.value || (!alipayEnabled.value && !wechatEnabled.value)) {
     state.value = "unavailable";
-    message.value = "支付宝正式收款通道正在做上线检查，暂未开放新订单。";
+    message.value = "正式收款通道正在做上线检查，暂未开放新订单。";
+    return;
+  }
+
+  if (status.orderStatus === "PENDING") {
+    selectedProvider.value = status.paymentProduct === "WECHAT_NATIVE" ? "wechat" : "alipay";
+  } else if (!providerEnabled.value) {
+    selectedProvider.value = alipayEnabled.value ? "alipay" : "wechat";
+  }
+
+  if (selectedProvider.value === "wechat" && mobileBrowser.value) {
+    state.value = "mobile";
+    message.value = "微信 Native 支付需要在电脑展示付款码，再使用手机微信扫一扫。";
     return;
   }
 
   state.value = "ready";
   message.value =
     status.orderStatus === "PENDING"
-      ? "你有一笔待支付的支付宝订单，可以继续完成付款。"
+      ? `你有一笔待支付的${selectedProvider.value === "wechat" ? "微信" : "支付宝"}订单，可以继续完成付款。`
       : "支付会话已准备好。";
 
   if (props.direct && !autoPayStarted.value) {
     autoPayStarted.value = true;
     await startPayment();
+  }
+};
+
+const clearPaymentPolling = (): void => {
+  if (pollingTimer !== null) window.clearInterval(pollingTimer);
+  if (countdownTimer !== null) window.clearInterval(countdownTimer);
+  pollingTimer = null;
+  countdownTimer = null;
+  pollCount = 0;
+};
+
+const pollWechatOrder = async (): Promise<void> => {
+  if (!orderId.value || document.hidden || !navigator.onLine) return;
+  pollCount += 1;
+  const reconcile = pollCount % 5 === 0 ? "&reconcile=1" : "";
+  const response = await fetch(
+    `/api/wechat-pay/order?id=${encodeURIComponent(orderId.value)}${reconcile}`,
+    { credentials: "same-origin", cache: "no-store" },
+  );
+  if (!response.ok) return;
+  const result = (await response.json()) as { eligible: boolean; status: string };
+  if (result.eligible || result.status === "PAID") {
+    clearPaymentPolling();
+    await loadGroupQr();
+  } else if (["CLOSED", "REFUNDED", "REVOKED"].includes(result.status)) {
+    clearPaymentPolling();
+    state.value = "error";
+    message.value = "微信订单已结束，请重新发起支付。";
+  }
+};
+
+const startPaymentPolling = (): void => {
+  clearPaymentPolling();
+  const updateCountdown = (): void => {
+    remainingSeconds.value = Math.max(
+      0,
+      Math.ceil(((paymentExpiresAt.value || 0) - Date.now()) / 1000),
+    );
+    if (remainingSeconds.value === 0) {
+      clearPaymentPolling();
+      state.value = "error";
+      message.value = "微信付款码已过期，请重新发起支付。";
+    }
+  };
+  updateCountdown();
+  countdownTimer = window.setInterval(updateCountdown, 1000);
+  pollingTimer = window.setInterval(() => void pollWechatOrder(), 2000);
+};
+
+const handlePollingAvailability = (): void => {
+  if (state.value !== "awaiting") return;
+  if (document.hidden || !navigator.onLine) {
+    clearPaymentPolling();
+    return;
+  }
+  if ((paymentExpiresAt.value || 0) > Date.now()) {
+    startPaymentPolling();
+  } else {
+    state.value = "error";
+    message.value = "微信付款码已过期，请重新发起支付。";
+  }
+};
+
+const selectProvider = (provider: PaymentProvider): void => {
+  if (busy.value || provider === selectedProvider.value) return;
+  clearPaymentPolling();
+  paymentQrDataUrl.value = null;
+  paymentExpiresAt.value = null;
+  selectedProvider.value = provider;
+  if (provider === "wechat" && mobileBrowser.value) {
+    state.value = "mobile";
+    message.value = "微信 Native 支付需要在电脑展示付款码，再使用手机微信扫一扫。";
+  } else {
+    state.value = "ready";
+    message.value = `${provider === "wechat" ? "微信" : "支付宝"}支付已选择。`;
   }
 };
 
@@ -140,17 +259,28 @@ const submitPaymentHtml = (paymentHtml: string): void => {
 };
 
 const startPayment = async (): Promise<void> => {
-  if (!accepted.value || !paymentEnabled.value || busy.value) return;
+  if (!accepted.value || !providerEnabled.value || busy.value) return;
+
+  if (selectedProvider.value === "wechat" && mobileBrowser.value) {
+    state.value = "mobile";
+    message.value = "请在电脑打开本页，再使用手机微信扫一扫完成付款。";
+    return;
+  }
 
   try {
     state.value = "paying";
-    message.value = "正在创建 9.9 元支付宝订单并跳转收银台…";
-    const response = await fetch("/api/alipay/order", {
-      method: "POST",
-      credentials: "same-origin",
-      headers: { "Content-Type": "application/json" },
-      body: "{}",
-    });
+    message.value = selectedProvider.value === "wechat"
+      ? "正在创建 9.9 元微信订单并生成付款码…"
+      : "正在创建 9.9 元支付宝订单并跳转收银台…";
+    const response = await fetch(
+      selectedProvider.value === "wechat" ? "/api/wechat-pay/order" : "/api/alipay/order",
+      {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: "{}",
+      },
+    );
     if (!response.ok) throw new Error(await responseError(response));
 
     const result = (await response.json()) as CreateOrderResponse;
@@ -159,11 +289,28 @@ const startPayment = async (): Promise<void> => {
       await loadGroupQr();
       return;
     }
+
+    if (selectedProvider.value === "wechat") {
+      if (!result.codeUrl || !result.expiresAt) {
+        throw new Error("微信支付未返回有效付款码，请稍后重试。");
+      }
+      paymentQrDataUrl.value = await QRCode.toDataURL(result.codeUrl, {
+        errorCorrectionLevel: "M",
+        margin: 2,
+        width: 320,
+      });
+      paymentExpiresAt.value = new Date(result.expiresAt).getTime();
+      state.value = "awaiting";
+      message.value = "请使用手机微信扫一扫付款，到账后会自动显示入群二维码。";
+      startPaymentPolling();
+      return;
+    }
+
     if (!result.paymentHtml) throw new Error("支付宝支付表单缺失，请稍后重试。");
     submitPaymentHtml(result.paymentHtml);
   } catch (error) {
     state.value = "error";
-    message.value = error instanceof Error ? error.message : "支付宝支付暂时无法发起，请稍后重试。";
+    message.value = error instanceof Error ? error.message : "支付暂时无法发起，请稍后重试。";
   }
 };
 
@@ -175,6 +322,8 @@ const retry = async (): Promise<void> => {
     const runtime = await loadCommunityRuntimeConfig();
     if (redirectToCommunityOrigin(runtime.communityOrigin)) return;
     paymentEnabled.value = runtime.paymentEnabled;
+    alipayEnabled.value = runtime.paymentMethods.alipay.enabled;
+    wechatEnabled.value = runtime.paymentMethods.wechatNative.enabled;
     await refreshStatus();
   } catch (error) {
     state.value = "error";
@@ -183,10 +332,21 @@ const retry = async (): Promise<void> => {
 };
 
 onMounted(async () => {
+  mobileBrowser.value = /Android|iPad|iPhone|MicroMessenger|Mobile/iu.test(navigator.userAgent);
+  document.addEventListener("visibilitychange", handlePollingAvailability);
+  window.addEventListener("online", handlePollingAvailability);
+  window.addEventListener("offline", handlePollingAvailability);
+  if (new URLSearchParams(window.location.search).get("provider") === "wechat") {
+    selectedProvider.value = "wechat";
+  }
   await retry();
 });
 
 onBeforeUnmount(() => {
+  clearPaymentPolling();
+  document.removeEventListener("visibilitychange", handlePollingAvailability);
+  window.removeEventListener("online", handlePollingAvailability);
+  window.removeEventListener("offline", handlePollingAvailability);
   if (qrUrl.value) URL.revokeObjectURL(qrUrl.value);
 });
 </script>
@@ -253,7 +413,7 @@ onBeforeUnmount(() => {
       <div v-if="!props.direct" class="paid-community-payment-notes" aria-label="支付与服务说明">
         <div>
           <ShieldCheckIcon aria-hidden="true" />
-          <span>支付宝安全收款</span>
+          <span>支付宝 / 微信安全收款</span>
         </div>
         <div>
           <CheckCircleIcon aria-hidden="true" />
@@ -266,16 +426,38 @@ onBeforeUnmount(() => {
       </div>
 
       <div class="paid-community-checkout-action">
+        <div
+          v-if="state !== 'eligible' && (alipayEnabled || wechatEnabled)"
+          class="paid-community-methods"
+          aria-label="选择支付方式"
+        >
+          <button
+            type="button"
+            :class="{ 'is-active': selectedProvider === 'alipay' }"
+            :disabled="!alipayEnabled || busy"
+            @click="selectProvider('alipay')"
+          >支付宝</button>
+          <button
+            type="button"
+            :class="{ 'is-active': selectedProvider === 'wechat' }"
+            :disabled="!wechatEnabled || busy"
+            @click="selectProvider('wechat')"
+          >微信支付</button>
+        </div>
+
         <div class="paid-community-status" role="status" aria-live="polite">
           <span class="paid-community-status-dot" :class="`is-${state}`" aria-hidden="true"></span>
           <p>{{ message }}</p>
         </div>
 
-        <div v-if="paymentEnabled && state !== 'eligible'" class="paid-community-return-tip">
+        <div
+          v-if="paymentEnabled && state !== 'eligible' && state !== 'awaiting'"
+          class="paid-community-return-tip"
+        >
           <QrCodeIcon aria-hidden="true" />
           <p>
-            <strong>支付完成后，请记得返回本页面</strong>
-            <span>系统确认到账后，入群二维码会自动显示在这里。</span>
+            <strong>{{ selectedProvider === 'wechat' ? '请在电脑展示付款码' : '支付完成后，请记得返回本页面' }}</strong>
+            <span>{{ selectedProvider === 'wechat' ? '使用手机微信扫一扫，系统确认到账后自动显示入群二维码。' : '系统确认到账后，入群二维码会自动显示在这里。' }}</span>
           </p>
         </div>
 
@@ -284,6 +466,31 @@ onBeforeUnmount(() => {
             <img v-if="qrUrl" :src="qrUrl" alt="已付款用户可见的 CodexGuide 微信群二维码">
           </div>
           <p class="paid-community-hint">请勿转发群二维码。若二维码已失效或群已满，请联系公众号“苍何”。</p>
+        </template>
+
+        <template v-else-if="state === 'awaiting'">
+          <div class="paid-community-payment-qr">
+            <strong>微信付款码</strong>
+            <img v-if="paymentQrDataUrl" :src="paymentQrDataUrl" alt="CodexGuide 交流群微信付款二维码">
+            <span>剩余 {{ remainingLabel }}</span>
+            <small>请使用手机微信“扫一扫”，不要截屏或从相册识别。</small>
+          </div>
+          <button class="paid-community-retry" type="button" @click="selectProvider('alipay')">
+            改用支付宝
+          </button>
+        </template>
+
+        <template v-else-if="state === 'mobile'">
+          <div class="paid-community-mobile-tip">
+            <strong>微信扫码支付需要两台设备</strong>
+            <span>请在电脑打开当前页面，再使用手机微信扫一扫。手机端可直接改用支付宝。</span>
+          </div>
+          <button
+            v-if="alipayEnabled"
+            class="paid-community-pay"
+            type="button"
+            @click="selectProvider('alipay')"
+          >改用支付宝　¥9.9</button>
         </template>
 
         <template v-else>
@@ -295,10 +502,10 @@ onBeforeUnmount(() => {
             v-if="state === 'ready' || state === 'paying'"
             class="paid-community-pay"
             type="button"
-            :disabled="!accepted || busy"
+            :disabled="!accepted || !providerEnabled || busy"
             @click="startPayment"
           >
-            {{ busy ? "正在跳转支付宝…" : "支付宝支付　¥9.9" }}
+            {{ busy ? "正在发起支付…" : `${selectedProvider === "wechat" ? "微信支付" : "支付宝支付"}　¥9.9` }}
           </button>
           <button
             v-if="state === 'error' || state === 'unavailable'"
@@ -549,6 +756,12 @@ onBeforeUnmount(() => {
 .paid-community-status-dot.is-error { background: #dc2626; }
 .paid-community-status-dot.is-unavailable { background: #64748b; }
 .paid-community-status-dot.is-paying, .paid-community-status-dot.is-checking { background: #eab308; }
+.paid-community-status-dot.is-awaiting { background: #16a34a; }
+.paid-community-status-dot.is-mobile { background: #64748b; }
+.paid-community-methods { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .45rem; margin: 0 0 .7rem; }
+.paid-community-methods button { border: 1px solid var(--vp-c-border); border-radius: 8px; padding: .55rem .7rem; background: var(--vp-c-bg); color: var(--vp-c-text-mute); font: inherit; font-size: .8rem; font-weight: 750; cursor: pointer; }
+.paid-community-methods button.is-active { border-color: #075f5e; background: var(--vp-c-accent-soft); color: #075f5e; }
+.paid-community-methods button:disabled { cursor: not-allowed; opacity: .45; }
 .paid-community-return-tip { display: flex; align-items: flex-start; gap: .55rem; margin: 0 0 .7rem; border: 1px solid color-mix(in srgb, #075f5e 24%, var(--vp-c-border)); border-radius: 8px; padding: .6rem .7rem; background: var(--vp-c-accent-soft); color: var(--vp-c-text); }
 .paid-community-return-tip svg { flex: 0 0 auto; width: 1.25rem; height: 1.25rem; margin-top: .12rem; color: #075f5e; stroke-width: 1.8; }
 .paid-community-return-tip p { margin: 0; line-height: 1.45; }
@@ -561,6 +774,12 @@ onBeforeUnmount(() => {
 .paid-community-pay:disabled { cursor: not-allowed; opacity: .48; }
 .paid-community-retry { background: #075f5e; }
 .paid-community-group-qr img { display: block; width: min(100%, 20rem); margin: 1rem auto; border: 1px solid var(--vp-c-border); border-radius: 8px; background: #fff; }
+.paid-community-payment-qr { display: grid; justify-items: center; gap: .45rem; border: 1px solid var(--vp-c-border); border-radius: 10px; padding: .85rem; background: var(--vp-c-bg-soft); text-align: center; }
+.paid-community-payment-qr img { display: block; width: min(100%, 16rem); border-radius: 8px; background: #fff; }
+.paid-community-payment-qr strong { color: #075f5e; }
+.paid-community-payment-qr span { font-variant-numeric: tabular-nums; font-weight: 800; }
+.paid-community-payment-qr small, .paid-community-mobile-tip span { color: var(--vp-c-text-mute); font-size: .75rem; line-height: 1.55; }
+.paid-community-mobile-tip { display: grid; gap: .35rem; border: 1px solid var(--vp-c-border); border-radius: 8px; padding: .8rem; background: var(--vp-c-bg-soft); }
 .paid-community-hint { margin: .75rem auto 0; color: var(--vp-c-text-mute); font-size: .88rem; line-height: 1.6; text-align: center; }
 .paid-community-entry, .paid-community-section { width: min(calc(100% - 3rem), 70rem); margin-inline: auto; }
 .paid-community-entry { padding: clamp(2.25rem, 4vw, 3rem) 0 .5rem; }

@@ -9,7 +9,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const dbMocks = vi.hoisted(() => ({
   findOrderById: vi.fn(),
-  markOrderPaid: vi.fn(),
+  markWechatOrderPaid: vi.fn(),
 }));
 
 vi.mock("../server/db.js", () => dbMocks);
@@ -30,6 +30,7 @@ const notificationBody = (amount = 990): string => {
     mchid: "1900000001",
     out_trade_no: orderId,
     trade_state: "SUCCESS",
+    trade_type: "NATIVE",
     transaction_id: "4200000000001",
     amount: { currency: "CNY", payer_total: amount, total: amount },
   };
@@ -43,12 +44,15 @@ const notificationBody = (amount = 990): string => {
   ]).toString("base64");
 
   return JSON.stringify({
+    event_type: "TRANSACTION.SUCCESS",
     id: "notification-id",
+    resource_type: "encrypt-resource",
     resource: {
       algorithm: "AEAD_AES_256_GCM",
       associated_data: "transaction",
       ciphertext,
       nonce,
+      original_type: "transaction",
     },
   });
 };
@@ -66,7 +70,7 @@ const signedRequest = (body: string, valid = true): Request => {
     headers: {
       "Content-Type": "application/json",
       "Wechatpay-Nonce": nonce,
-      "Wechatpay-Serial": "PLATFORM-SERIAL",
+      "Wechatpay-Serial": "PUB_KEY_ID_01111111111111111111111111111111",
       "Wechatpay-Signature": valid ? signature : `x${signature.slice(1)}`,
       "Wechatpay-Timestamp": String(timestamp),
     },
@@ -76,30 +80,38 @@ const signedRequest = (body: string, valid = true): Request => {
 
 describe("WeChat Pay notification endpoint", () => {
   beforeEach(() => {
-    process.env.WECHAT_PAYMENT_ENABLED = "true";
     process.env.PUBLIC_SITE_URL = "https://codexguide.ai";
     process.env.WECHAT_APP_ID = "wx-test-app";
-    process.env.WECHAT_APP_SECRET = "app-secret";
     process.env.WECHAT_PAY_API_V3_KEY = apiV3Key;
     process.env.WECHAT_PAY_MCH_ID = "1900000001";
     process.env.WECHAT_PAY_CERT_SERIAL_NO = "MERCHANT-SERIAL";
     process.env.WECHAT_PAY_PRIVATE_KEY = merchantPrivatePem;
-    process.env.WECHAT_PAY_VERIFICATION_KEYS = JSON.stringify({
-      "PLATFORM-SERIAL": platformPublicPem,
-    });
+    process.env.WECHAT_PAY_PUBLIC_KEY_ID = "PUB_KEY_ID_01111111111111111111111111111111";
+    process.env.WECHAT_PAY_PUBLIC_KEY = platformPublicPem;
     dbMocks.findOrderById.mockReset();
-    dbMocks.markOrderPaid.mockReset();
+    dbMocks.markWechatOrderPaid.mockReset();
+    dbMocks.markWechatOrderPaid.mockResolvedValue(true);
     dbMocks.findOrderById.mockResolvedValue({
+      alipay_buyer_key: null,
+      alipay_trade_no: null,
       amount_cents: 990,
       buyer_key: "b".repeat(64),
       created_at: new Date(),
       currency: "CNY",
       id: orderId,
       paid_at: null,
+      payment_product: "WECHAT_NATIVE",
+      payment_provider: "WECHAT",
       prepay_expires_at: null,
       prepay_id: null,
+      refund_request_no: null,
+      refund_status: null,
+      refunded_at: null,
       status: "PENDING",
       updated_at: new Date(),
+      wechat_code_expires_at: null,
+      wechat_code_url: null,
+      wechat_refund_id: null,
       wechat_transaction_id: null,
     });
   });
@@ -107,29 +119,52 @@ describe("WeChat Pay notification endpoint", () => {
   it("marks a fully verified notification paid", async () => {
     const response = await handler.fetch(signedRequest(notificationBody()));
     expect(response.status).toBe(204);
-    expect(dbMocks.markOrderPaid).toHaveBeenCalledWith(orderId, "4200000000001");
+    expect(dbMocks.markWechatOrderPaid).toHaveBeenCalledWith(orderId, "4200000000001");
   });
 
-  it("returns not found without reading payment configuration when WeChat Pay is disabled", async () => {
-    process.env.WECHAT_PAYMENT_ENABLED = "false";
+  it("keeps verified payment notifications active when new Native orders are disabled", async () => {
+    process.env.WECHAT_NATIVE_PAYMENT_ENABLED = "false";
 
     const response = await handler.fetch(signedRequest(notificationBody()));
 
-    expect(response.status).toBe(404);
-    expect(dbMocks.findOrderById).not.toHaveBeenCalled();
-    expect(dbMocks.markOrderPaid).not.toHaveBeenCalled();
+    expect(response.status).toBe(204);
+    expect(dbMocks.findOrderById).toHaveBeenCalledWith(orderId);
+    expect(dbMocks.markWechatOrderPaid).toHaveBeenCalledWith(orderId, "4200000000001");
   });
 
   it("rejects invalid signatures before touching the order", async () => {
     const response = await handler.fetch(signedRequest(notificationBody(), false));
     expect(response.status).toBe(401);
     expect(dbMocks.findOrderById).not.toHaveBeenCalled();
-    expect(dbMocks.markOrderPaid).not.toHaveBeenCalled();
+    expect(dbMocks.markWechatOrderPaid).not.toHaveBeenCalled();
+  });
+
+  it("rejects a signed non-object notification as a client error", async () => {
+    const response = await handler.fetch(signedRequest("null"));
+    expect(response.status).toBe(400);
+    expect(dbMocks.findOrderById).not.toHaveBeenCalled();
   });
 
   it("rejects a signed notification with the wrong amount", async () => {
     const response = await handler.fetch(signedRequest(notificationBody(1)));
     expect(response.status).toBe(400);
-    expect(dbMocks.markOrderPaid).not.toHaveBeenCalled();
+    expect(dbMocks.markWechatOrderPaid).not.toHaveBeenCalled();
+  });
+
+  it("rejects a conflicting transaction without overwriting the paid row", async () => {
+    dbMocks.markWechatOrderPaid.mockResolvedValue(false);
+    const response = await handler.fetch(signedRequest(notificationBody()));
+    expect(response.status).toBe(409);
+  });
+
+  it("acknowledges a duplicate payment notification after the same transaction was refunded", async () => {
+    dbMocks.findOrderById.mockResolvedValue({
+      ...(await dbMocks.findOrderById()),
+      status: "REFUNDED",
+      wechat_transaction_id: "4200000000001",
+    });
+    const response = await handler.fetch(signedRequest(notificationBody()));
+    expect(response.status).toBe(204);
+    expect(dbMocks.markWechatOrderPaid).not.toHaveBeenCalled();
   });
 });

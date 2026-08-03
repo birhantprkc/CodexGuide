@@ -8,7 +8,11 @@ const dbMocks = vi.hoisted(() => ({
 vi.mock("../server/db.js", () => dbMocks);
 
 import handler from "../api/community/qr.js";
-import { alipaySessionCookie, communitySessionCookie } from "../server/session.js";
+import {
+  alipaySessionCookie,
+  communitySessionCookie,
+  paidCommunitySessionCookie,
+} from "../server/session.js";
 
 const requestWithSession = (): Request => {
   const setCookie = communitySessionCookie("openid", "b".repeat(64));
@@ -39,6 +43,18 @@ describe("protected group QR endpoint", () => {
     expect(dbMocks.getActiveGroupQr).not.toHaveBeenCalled();
   });
 
+  it("rejects a tampered generic payment session", async () => {
+    const cookie = paidCommunitySessionCookie("c".repeat(64)).split(";")[0];
+    const [name, value] = cookie.split("=");
+    const response = await handler.fetch(
+      new Request("https://codexguide.ai/api/community/qr", {
+        headers: { Cookie: `${name}=x${value.slice(1)}` },
+      }),
+    );
+    expect(response.status).toBe(401);
+    expect(dbMocks.findCurrentOrder).not.toHaveBeenCalled();
+  });
+
   it("does not return the image to an unpaid buyer", async () => {
     dbMocks.findCurrentOrder.mockResolvedValue({ status: "PENDING" });
     const response = await handler.fetch(requestWithSession());
@@ -46,7 +62,19 @@ describe("protected group QR endpoint", () => {
     expect(dbMocks.getActiveGroupQr).not.toHaveBeenCalled();
   });
 
+  it.each(["REFUNDED", "REVOKED", "CLOSED"])(
+    "does not return the image for a %s order",
+    async (status) => {
+      dbMocks.findCurrentOrder.mockResolvedValue({ status });
+      const response = await handler.fetch(requestWithSession());
+      expect(response.status).toBe(403);
+      expect(dbMocks.getActiveGroupQr).not.toHaveBeenCalled();
+    },
+  );
+
   it("returns the current private image only to a paid buyer", async () => {
+    process.env.COMMUNITY_PAYMENT_ENABLED = "false";
+    process.env.WECHAT_NATIVE_PAYMENT_ENABLED = "false";
     dbMocks.findCurrentOrder.mockResolvedValue({ status: "PAID" });
     dbMocks.getActiveGroupQr.mockResolvedValue({
       content_type: "image/png",
@@ -61,8 +89,8 @@ describe("protected group QR endpoint", () => {
   });
 
   it("keeps a paid WeChat entitlement when an unpaid Alipay cookie also exists", async () => {
-    dbMocks.findCurrentOrder.mockImplementation(async (_buyerKey: string, provider: string) =>
-      provider === "WECHAT" ? { status: "PAID" } : { status: "PENDING" },
+    dbMocks.findCurrentOrder.mockImplementation(async (buyerKey: string) =>
+      buyerKey === "b".repeat(64) ? { status: "PAID" } : { status: "PENDING" },
     );
     dbMocks.getActiveGroupQr.mockResolvedValue({
       content_type: "image/png",
@@ -72,7 +100,7 @@ describe("protected group QR endpoint", () => {
     const response = await handler.fetch(requestWithBothSessions());
 
     expect(response.status).toBe(200);
-    expect(dbMocks.findCurrentOrder).toHaveBeenCalledWith("a".repeat(64), "ALIPAY");
-    expect(dbMocks.findCurrentOrder).toHaveBeenCalledWith("b".repeat(64), "WECHAT");
+    expect(dbMocks.findCurrentOrder).toHaveBeenCalledWith("a".repeat(64));
+    expect(dbMocks.findCurrentOrder).toHaveBeenCalledWith("b".repeat(64));
   });
 });

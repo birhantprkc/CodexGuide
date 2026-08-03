@@ -1,4 +1,4 @@
-import { requirePaidCommunityBuyers } from "../../server/auth.js";
+import { requirePaidCommunityBuyerKeys } from "../../server/auth.js";
 import { findCurrentOrder, getActiveGroupQr } from "../../server/db.js";
 import { AppError, errorResponse } from "../../server/errors.js";
 import { assertMethod, noStoreHeaders } from "../../server/http.js";
@@ -7,9 +7,9 @@ export default {
   async fetch(request: Request): Promise<Response> {
     try {
       assertMethod(request, ["GET"]);
-      const buyers = requirePaidCommunityBuyers(request);
+      const buyerKeys = requirePaidCommunityBuyerKeys(request);
       const orders = await Promise.all(
-        buyers.map((buyer) => findCurrentOrder(buyer.buyerKey, buyer.provider)),
+        buyerKeys.map((buyerKey) => findCurrentOrder(buyerKey)),
       );
       const order = orders.find((candidate) => candidate?.status === "PAID");
 

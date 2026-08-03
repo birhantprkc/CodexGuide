@@ -1,4 +1,4 @@
-import { getAdminSessionSecret, getBuyerHmacSecret } from "./config.js";
+import { getAdminSessionSecret } from "./config.js";
 import { AppError } from "./errors.js";
 import { getClientIp } from "./http.js";
 import { hmacHex } from "./security.js";
@@ -6,52 +6,43 @@ import {
   readAdminSession,
   readAlipaySession,
   readCommunitySession,
-  type AlipaySession,
-  type CommunitySession,
+  readPaidCommunitySession,
+  type PaidCommunitySession,
 } from "./session.js";
 
-export const requireCommunitySession = (request: Request): CommunitySession => {
-  const session = readCommunitySession(request);
+export const requirePaidCommunitySession = (request: Request): PaidCommunitySession => {
+  const current = readPaidCommunitySession(request);
+  if (current) return current;
 
-  if (!session) {
-    throw new AppError(401, "wechat_auth_required", "请先在微信内完成身份确认。" );
-  }
-
-  return session;
-};
-
-export const requireAlipaySession = (request: Request): AlipaySession => {
-  const session = readAlipaySession(request);
-
-  if (!session) {
-    throw new AppError(401, "alipay_session_required", "支付会话已失效，请刷新页面后重试。" );
-  }
-
-  return session;
-};
-
-export type PaidCommunityBuyer = {
-  buyerKey: string;
-  provider: "ALIPAY" | "WECHAT";
-};
-
-export const readPaidCommunityBuyers = (request: Request): PaidCommunityBuyer[] => {
-  const buyers: PaidCommunityBuyer[] = [];
   const alipay = readAlipaySession(request);
-  if (alipay) buyers.push({ buyerKey: alipay.buyerKey, provider: "ALIPAY" });
+  if (alipay) {
+    return { type: "paid-community", buyerKey: alipay.buyerKey, exp: alipay.exp };
+  }
 
   const wechat = readCommunitySession(request);
-  if (wechat) buyers.push({ buyerKey: wechat.buyerKey, provider: "WECHAT" });
+  if (wechat) {
+    return { type: "paid-community", buyerKey: wechat.buyerKey, exp: wechat.exp };
+  }
 
-  return buyers;
+  throw new AppError(401, "community_session_required", "支付会话已失效，请刷新页面后重试。" );
 };
 
-export const requirePaidCommunityBuyers = (request: Request): PaidCommunityBuyer[] => {
-  const buyers = readPaidCommunityBuyers(request);
-  if (buyers.length === 0) {
+export const readPaidCommunityBuyerKeys = (request: Request): string[] => {
+  const keys = [
+    readPaidCommunitySession(request)?.buyerKey,
+    readAlipaySession(request)?.buyerKey,
+    readCommunitySession(request)?.buyerKey,
+  ].filter((value): value is string => Boolean(value));
+
+  return [...new Set(keys)];
+};
+
+export const requirePaidCommunityBuyerKeys = (request: Request): string[] => {
+  const keys = readPaidCommunityBuyerKeys(request);
+  if (keys.length === 0) {
     throw new AppError(401, "community_session_required", "支付会话已失效，请刷新页面后重试。" );
   }
-  return buyers;
+  return keys;
 };
 
 export const requireAdminSession = (request: Request): void => {
@@ -62,6 +53,3 @@ export const requireAdminSession = (request: Request): void => {
 
 export const adminLoginBucket = (request: Request): string =>
   hmacHex(`admin-login:${getClientIp(request)}`, getAdminSessionSecret());
-
-export const buyerKeyForOpenid = (openid: string): string =>
-  hmacHex(openid, getBuyerHmacSecret());

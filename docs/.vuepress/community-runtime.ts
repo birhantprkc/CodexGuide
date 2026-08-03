@@ -1,6 +1,10 @@
 export type CommunityRuntimeConfig = {
   communityOrigin: string;
   paymentEnabled: boolean;
+  paymentMethods: {
+    alipay: { enabled: boolean };
+    wechatNative: { enabled: boolean };
+  };
   paymentProvider: "ALIPAY";
   priceCents: number;
 };

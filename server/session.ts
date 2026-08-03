@@ -4,7 +4,7 @@ import { seal, unseal } from "./security.js";
 
 export const COMMUNITY_SESSION_COOKIE = "codexguide_community";
 export const ALIPAY_SESSION_COOKIE = "codexguide_alipay_community";
-export const OAUTH_STATE_COOKIE = "codexguide_oauth_state";
+export const PAID_COMMUNITY_SESSION_COOKIE = "codexguide_paid_community";
 export const ADMIN_SESSION_COOKIE = "codexguide_community_admin";
 
 export type CommunitySession = {
@@ -14,17 +14,16 @@ export type CommunitySession = {
   type: "community";
 };
 
-export type OAuthState = {
-  exp: number;
-  nonce: string;
-  returnTo: string;
-  type: "oauth-state";
-};
-
 export type AlipaySession = {
   buyerKey: string;
   exp: number;
   type: "alipay-community";
+};
+
+export type PaidCommunitySession = {
+  buyerKey: string;
+  exp: number;
+  type: "paid-community";
 };
 
 export type AdminSession = {
@@ -72,18 +71,25 @@ export const alipaySessionCookie = (buyerKey: string): string => {
   });
 };
 
-export const oauthStateCookie = (state: OAuthState): string =>
-  cookie(OAUTH_STATE_COOKIE, seal(state, getCommunitySessionSecret()), {
-    maxAge: 10 * 60,
+export const readPaidCommunitySession = (request: Request): PaidCommunitySession | null =>
+  unseal<PaidCommunitySession>(
+    readCookie(request, PAID_COMMUNITY_SESSION_COOKIE),
+    getCommunitySessionSecret(),
+    "paid-community",
+  );
+
+export const paidCommunitySessionCookie = (buyerKey: string): string => {
+  const maxAge = 365 * 24 * 60 * 60;
+  const token = seal(
+    { type: "paid-community", buyerKey, exp: Date.now() + maxAge * 1000 },
+    getCommunitySessionSecret(),
+  );
+
+  return cookie(PAID_COMMUNITY_SESSION_COOKIE, token, {
+    maxAge,
     secure: process.env.NODE_ENV === "production",
   });
-
-export const readOAuthState = (request: Request): OAuthState | null =>
-  unseal<OAuthState>(
-    readCookie(request, OAUTH_STATE_COOKIE),
-    getCommunitySessionSecret(),
-    "oauth-state",
-  );
+};
 
 export const readAdminSession = (request: Request): AdminSession | null =>
   unseal<AdminSession>(

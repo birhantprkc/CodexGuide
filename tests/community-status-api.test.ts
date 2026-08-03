@@ -24,22 +24,32 @@ describe("community status endpoint", () => {
     dbMocks.hasActiveGroupQr.mockResolvedValue(true);
   });
 
-  it("exposes only the Alipay session bootstrap to unauthenticated users", async () => {
+  it("exposes the provider-neutral session bootstrap to unauthenticated users", async () => {
     const response = await handler.fetch(
       new Request("https://codexguide.ai/api/community/status"),
     );
     const body = await response.json();
 
     expect(response.status).toBe(200);
-    expect(body.sessionUrl).toBe("/api/auth/alipay/session");
+    expect(body.sessionUrl).toBe("/api/auth/community/session");
     expect(body.authUrl).toBeUndefined();
   });
 
   it("prefers a paid legacy WeChat entitlement over an unpaid Alipay order", async () => {
-    dbMocks.findCurrentOrder.mockImplementation(async (_buyerKey: string, provider: string) =>
-      provider === "WECHAT"
-        ? { id: "wechat-paid", payment_provider: "WECHAT", status: "PAID" }
-        : { id: "alipay-pending", payment_provider: "ALIPAY", status: "PENDING" },
+    dbMocks.findCurrentOrder.mockImplementation(async (buyerKey: string) =>
+      buyerKey === "b".repeat(64)
+        ? {
+            id: "wechat-paid",
+            payment_product: "WECHAT_JSAPI",
+            payment_provider: "WECHAT",
+            status: "PAID",
+          }
+        : {
+            id: "alipay-pending",
+            payment_product: "ALIPAY_WEB",
+            payment_provider: "ALIPAY",
+            status: "PENDING",
+          },
     );
 
     const response = await handler.fetch(
@@ -52,5 +62,6 @@ describe("community status endpoint", () => {
     expect(body.eligible).toBe(true);
     expect(body.orderId).toBe("wechat-paid");
     expect(body.paymentProvider).toBe("WECHAT");
+    expect(body.paymentProduct).toBe("WECHAT_JSAPI");
   });
 });

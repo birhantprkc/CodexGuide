@@ -41,13 +41,19 @@ const routeFiles = new Map([
   ["/api/admin/group-qr", "api/admin/group-qr.js"],
   ["/api/admin/login", "api/admin/login.js"],
   ["/api/admin/logout", "api/admin/logout.js"],
+  ["/api/admin/orders", "api/admin/orders.js"],
+  ["/api/admin/refunds", "api/admin/refunds.js"],
   ["/api/admin/session", "api/admin/session.js"],
   ["/api/alipay/notify", "api/alipay/notify.js"],
   ["/api/alipay/order", "api/alipay/order.js"],
   ["/api/auth/alipay/session", "api/auth/alipay/session.js"],
+  ["/api/auth/community/session", "api/auth/community/session.js"],
   ["/api/community/config", "api/community/config.js"],
   ["/api/community/qr", "api/community/qr.js"],
   ["/api/community/status", "api/community/status.js"],
+  ["/api/wechat-pay/notify", "api/wechat-pay/notify.js"],
+  ["/api/wechat-pay/order", "api/wechat-pay/order.js"],
+  ["/api/wechat-pay/refund-notify", "api/wechat-pay/refund-notify.js"],
 ]);
 const handlers = new Map();
 
@@ -148,5 +154,5 @@ const server = createServer(async (request, response) => {
 });
 
 server.listen(port, "127.0.0.1", () => {
-  process.stdout.write(`Alipay sandbox site: http://localhost:${port}/community/join\n`);
+  process.stdout.write(`Paid community site: http://localhost:${port}/community/join\n`);
 });

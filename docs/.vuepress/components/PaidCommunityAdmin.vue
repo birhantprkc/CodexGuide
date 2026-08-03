@@ -13,6 +13,19 @@ const selectedFile = ref<File | null>(null);
 const previewUrl = ref<string | null>(null);
 const message = ref("正在检查管理员登录状态…");
 const busy = ref(false);
+const orderId = ref("");
+const refundReason = ref("用户申请退款");
+const order = ref<{
+  amountCents: number;
+  createdAt: string;
+  orderId: string;
+  paidAt: string | null;
+  paymentProduct: string;
+  paymentProvider: string;
+  refundStatus: string | null;
+  refundedAt: string | null;
+  status: string;
+} | null>(null);
 
 const clearPreview = (): void => {
   if (previewUrl.value) URL.revokeObjectURL(previewUrl.value);
@@ -97,6 +110,69 @@ const upload = async (): Promise<void> => {
   }
 };
 
+const lookupOrder = async (): Promise<void> => {
+  const target = orderId.value.trim().toUpperCase();
+  if (!target) return;
+  busy.value = true;
+  try {
+    const response = await fetch(`/api/admin/orders?id=${encodeURIComponent(target)}`, {
+      cache: "no-store",
+    });
+    if (!response.ok) throw new Error(await errorMessage(response));
+    order.value = await response.json();
+    orderId.value = order.value?.orderId || target;
+    message.value = "订单已找到，请核对支付渠道与状态后再操作。";
+  } catch (error) {
+    order.value = null;
+    message.value = error instanceof Error ? error.message : "订单查询失败。";
+  } finally {
+    busy.value = false;
+  }
+};
+
+const refundOrder = async (): Promise<void> => {
+  if (!order.value || order.value.status !== "PAID") return;
+  busy.value = true;
+  try {
+    const response = await fetch("/api/admin/refunds", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ orderId: order.value.orderId, reason: refundReason.value }),
+    });
+    if (!response.ok) throw new Error(await errorMessage(response));
+    const result = (await response.json()) as { status: string };
+    await lookupOrder();
+    message.value = result.status === "REFUNDED"
+      ? "退款已成功，入群资格已撤销。"
+      : `退款当前状态：${result.status}。成功后才会撤销资格。`;
+  } catch (error) {
+    message.value = error instanceof Error ? error.message : "退款发起失败。";
+  } finally {
+    busy.value = false;
+  }
+};
+
+const queryRefund = async (): Promise<void> => {
+  if (!order.value) return;
+  busy.value = true;
+  try {
+    const response = await fetch(
+      `/api/admin/refunds?id=${encodeURIComponent(order.value.orderId)}`,
+      { cache: "no-store" },
+    );
+    if (!response.ok) throw new Error(await errorMessage(response));
+    const result = (await response.json()) as { status: string };
+    await lookupOrder();
+    message.value = result.status === "REFUNDED"
+      ? "退款已成功，入群资格已撤销。"
+      : `退款当前状态：${result.status}。`;
+  } catch (error) {
+    message.value = error instanceof Error ? error.message : "退款状态查询失败。";
+  } finally {
+    busy.value = false;
+  }
+};
+
 const logout = async (): Promise<void> => {
   await fetch("/api/admin/logout", { method: "POST" });
   authenticated.value = false;
@@ -138,6 +214,7 @@ onBeforeUnmount(clearPreview);
     </form>
 
     <section v-if="authenticated" class="community-admin-card">
+      <h2>群二维码</h2>
       <img v-if="previewUrl" :src="previewUrl" alt="当前或待上传的微信群二维码预览">
       <label class="community-admin-file">
         <span>选择新的群二维码</span>
@@ -146,8 +223,60 @@ onBeforeUnmount(clearPreview);
       <button type="button" :disabled="busy || !selectedFile" @click="upload">
         {{ busy ? "上传中…" : "确认替换" }}
       </button>
-      <button class="community-admin-logout" type="button" @click="logout">退出登录</button>
     </section>
+
+    <section v-if="authenticated" class="community-admin-card">
+      <h2>订单与退款</h2>
+      <form class="community-admin-order-search" @submit.prevent="lookupOrder">
+        <label for="community-order-id">商户订单号</label>
+        <input
+          id="community-order-id"
+          v-model="orderId"
+          type="text"
+          autocomplete="off"
+          maxlength="32"
+          placeholder="CG…"
+          required
+        >
+        <button type="submit" :disabled="busy || !orderId.trim()">精确查询</button>
+      </form>
+
+      <dl v-if="order" class="community-admin-order-detail">
+        <div><dt>订单号</dt><dd>{{ order.orderId }}</dd></div>
+        <div><dt>渠道</dt><dd>{{ order.paymentProvider }} / {{ order.paymentProduct }}</dd></div>
+        <div><dt>金额</dt><dd>¥{{ (order.amountCents / 100).toFixed(2) }}</dd></div>
+        <div><dt>订单状态</dt><dd>{{ order.status }}</dd></div>
+        <div><dt>退款状态</dt><dd>{{ order.refundStatus || "未申请" }}</dd></div>
+        <div><dt>支付时间</dt><dd>{{ order.paidAt || "—" }}</dd></div>
+        <div><dt>退款时间</dt><dd>{{ order.refundedAt || "—" }}</dd></div>
+      </dl>
+
+      <template v-if="order">
+        <label for="community-refund-reason">退款原因</label>
+        <input
+          id="community-refund-reason"
+          v-model="refundReason"
+          type="text"
+          maxlength="80"
+        >
+        <button type="button" :disabled="busy || order.status !== 'PAID'" @click="refundOrder">
+          发起全额原路退款
+        </button>
+        <button
+          class="community-admin-secondary"
+          type="button"
+          :disabled="busy || !order.refundStatus"
+          @click="queryRefund"
+        >查询退款状态</button>
+      </template>
+    </section>
+
+    <button
+      v-if="authenticated"
+      class="community-admin-logout"
+      type="button"
+      @click="logout"
+    >退出登录</button>
   </main>
 </template>
 
@@ -180,7 +309,8 @@ onBeforeUnmount(clearPreview);
   background: var(--vp-c-bg);
 }
 
-.community-admin-card input[type="password"] {
+.community-admin-card input[type="password"],
+.community-admin-card input[type="text"] {
   width: 100%;
   box-sizing: border-box;
   border: 1px solid var(--vp-c-border);
@@ -212,7 +342,28 @@ onBeforeUnmount(clearPreview);
 }
 
 .community-admin-card button:disabled { cursor: not-allowed; opacity: 0.5; }
-.community-admin-card .community-admin-logout { background: #64748b; }
+.community-admin-card .community-admin-secondary { background: #64748b; }
+
+.community-admin-logout {
+  display: block;
+  width: 100%;
+  margin-top: 1.5rem;
+  border: 0;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  color: #fff;
+  background: #64748b;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.community-admin-card h2 { margin: 0; border: 0; padding: 0; font-size: 1.1rem; }
+.community-admin-order-search { display: grid; gap: 0.75rem; }
+.community-admin-order-detail { display: grid; gap: 0.6rem; margin: 0; }
+.community-admin-order-detail div { display: grid; grid-template-columns: 6rem minmax(0, 1fr); gap: 0.75rem; }
+.community-admin-order-detail dt { color: var(--vp-c-text-mute); }
+.community-admin-order-detail dd { min-width: 0; margin: 0; overflow-wrap: anywhere; }
 
 .community-admin-file {
   display: grid;

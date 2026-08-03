@@ -1,48 +1,47 @@
 import { findCurrentOrder, hasActiveGroupQr } from "../../server/db.js";
-import { readPaidCommunityBuyers } from "../../server/auth.js";
+import { readPaidCommunityBuyerKeys } from "../../server/auth.js";
 import { errorResponse } from "../../server/errors.js";
 import { assertMethod, noStoreHeaders } from "../../server/http.js";
+import { readPaidCommunitySession } from "../../server/session.js";
 
 export default {
   async fetch(request: Request): Promise<Response> {
     try {
       assertMethod(request, ["GET"]);
-      const buyers = readPaidCommunityBuyers(request);
+      const buyerKeys = readPaidCommunityBuyerKeys(request);
 
-      if (buyers.length === 0) {
+      if (buyerKeys.length === 0) {
         return Response.json(
           {
             authenticated: false,
             eligible: false,
-            sessionUrl: "/api/auth/alipay/session",
+            sessionReady: false,
+            sessionUrl: "/api/auth/community/session",
           },
           { headers: noStoreHeaders() },
         );
       }
 
-      const [buyerOrders, groupQr] = await Promise.all([
-        Promise.all(
-          buyers.map(async (buyer) => ({
-            buyer,
-            order: await findCurrentOrder(buyer.buyerKey, buyer.provider),
-          })),
-        ),
+      const [orders, groupQr] = await Promise.all([
+        Promise.all(buyerKeys.map((buyerKey) => findCurrentOrder(buyerKey))),
         hasActiveGroupQr(),
       ]);
       const selected =
-        buyerOrders.find(({ order }) => order?.status === "PAID") ||
-        buyerOrders.find(({ order }) => order?.status === "PENDING") ||
-        buyerOrders[0];
-      const { buyer, order } = selected;
+        orders.find((order) => order?.status === "PAID") ||
+        orders.find((order) => order?.status === "PENDING") ||
+        null;
 
       return Response.json(
         {
           authenticated: true,
-          eligible: order?.status === "PAID",
+          eligible: selected?.status === "PAID",
           groupQrReady: groupQr,
-          orderId: order?.id ?? null,
-          orderStatus: order?.status ?? null,
-          paymentProvider: order?.payment_provider ?? buyer.provider,
+          orderId: selected?.id ?? null,
+          orderStatus: selected?.status ?? null,
+          paymentProduct: selected?.payment_product ?? null,
+          paymentProvider: selected?.payment_provider ?? null,
+          sessionReady: Boolean(readPaidCommunitySession(request)),
+          sessionUrl: "/api/auth/community/session",
         },
         { headers: noStoreHeaders() },
       );

@@ -62,8 +62,11 @@ export const getAdminPasswordHash = (): string => required("ADMIN_PASSWORD_HASH"
 export const isCommunityPaymentEnabled = (): boolean =>
   booleanValue("COMMUNITY_PAYMENT_ENABLED");
 
-export const isWechatPaymentEnabled = (): boolean =>
-  booleanValue("WECHAT_PAYMENT_ENABLED");
+export const isAlipayPaymentEnabled = (): boolean =>
+  booleanValue("ALIPAY_PAYMENT_ENABLED", isCommunityPaymentEnabled());
+
+export const isWechatNativePaymentEnabled = (): boolean =>
+  booleanValue("WECHAT_NATIVE_PAYMENT_ENABLED");
 
 export type AlipayConfig = {
   alipayPublicKey: string;
@@ -104,55 +107,37 @@ export const getAlipayConfig = (): AlipayConfig => {
 
 export type WechatConfig = {
   appId: string;
-  appSecret: string;
   apiV3Key: string;
   merchantId: string;
   merchantPrivateKey: string;
   merchantSerialNumber: string;
-  verificationKeys: Record<string, string>;
+  publicKey: string;
+  publicKeyId: string;
 };
 
 export const getWechatConfig = (): WechatConfig => {
-  const rawVerificationKeys = required("WECHAT_PAY_VERIFICATION_KEYS");
-  let verificationKeys: Record<string, string>;
-
-  try {
-    const parsed = JSON.parse(rawVerificationKeys) as unknown;
-
-    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
-      throw new Error("Expected an object");
-    }
-
-    verificationKeys = Object.fromEntries(
-      Object.entries(parsed).map(([serial, publicKey]) => {
-        if (!serial || typeof publicKey !== "string" || !publicKey.includes("BEGIN")) {
-          throw new Error("Invalid verification key entry");
-        }
-
-        return [serial, pem(publicKey)];
-      }),
-    );
-  } catch {
-    throw new ConfigError("WECHAT_PAY_VERIFICATION_KEYS");
-  }
-
-  if (Object.keys(verificationKeys).length === 0) {
-    throw new ConfigError("WECHAT_PAY_VERIFICATION_KEYS");
-  }
-
   const apiV3Key = required("WECHAT_PAY_API_V3_KEY");
-
   if (Buffer.byteLength(apiV3Key, "utf8") !== 32) {
     throw new ConfigError("WECHAT_PAY_API_V3_KEY");
   }
 
+  const publicKeyId = required("WECHAT_PAY_PUBLIC_KEY_ID");
+  if (!/^PUB_KEY_ID_\d+$/u.test(publicKeyId)) {
+    throw new ConfigError("WECHAT_PAY_PUBLIC_KEY_ID");
+  }
+
+  const publicKey = pem(required("WECHAT_PAY_PUBLIC_KEY"));
+  if (!publicKey.includes("BEGIN PUBLIC KEY")) {
+    throw new ConfigError("WECHAT_PAY_PUBLIC_KEY");
+  }
+
   return {
     appId: required("WECHAT_APP_ID"),
-    appSecret: required("WECHAT_APP_SECRET"),
     apiV3Key,
     merchantId: required("WECHAT_PAY_MCH_ID"),
     merchantPrivateKey: pem(required("WECHAT_PAY_PRIVATE_KEY")),
     merchantSerialNumber: required("WECHAT_PAY_CERT_SERIAL_NO"),
-    verificationKeys,
+    publicKey,
+    publicKeyId,
   };
 };

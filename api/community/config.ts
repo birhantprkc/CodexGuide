@@ -1,6 +1,8 @@
 import {
   getCommunitySiteUrl,
+  isAlipayPaymentEnabled,
   isCommunityPaymentEnabled,
+  isWechatNativePaymentEnabled,
 } from "../../server/config.js";
 import { errorResponse } from "../../server/errors.js";
 import { assertMethod, noStoreHeaders } from "../../server/http.js";
@@ -11,10 +13,17 @@ export default {
     try {
       assertMethod(request, ["GET"]);
 
+      const globalEnabled = isCommunityPaymentEnabled();
+      const alipayEnabled = globalEnabled && isAlipayPaymentEnabled();
+      const wechatNativeEnabled = globalEnabled && isWechatNativePaymentEnabled();
       return Response.json(
         {
           communityOrigin: getCommunitySiteUrl(),
-          paymentEnabled: isCommunityPaymentEnabled(),
+          paymentEnabled: alipayEnabled || wechatNativeEnabled,
+          paymentMethods: {
+            alipay: { enabled: alipayEnabled },
+            wechatNative: { enabled: wechatNativeEnabled },
+          },
           paymentProvider: "ALIPAY",
           priceCents: COMMUNITY_PRICE_CENTS,
         },

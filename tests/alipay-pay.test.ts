@@ -38,13 +38,18 @@ const order: CommunityOrder = {
   currency: "CNY",
   id: "CGMTEST00000000000000001",
   paid_at: null,
+  payment_product: "ALIPAY_WEB",
   payment_provider: "ALIPAY",
   prepay_expires_at: null,
   prepay_id: null,
   refund_request_no: null,
+  refund_status: null,
   refunded_at: null,
   status: "PENDING",
   updated_at: new Date(),
+  wechat_code_expires_at: null,
+  wechat_code_url: null,
+  wechat_refund_id: null,
   wechat_transaction_id: null,
 };
 

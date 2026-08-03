@@ -1,23 +1,21 @@
 import { requirePaidCommunitySession } from "../../server/auth.js";
 import { closeConflictingPendingOrder } from "../../server/community-order-coordinator.js";
-import {
-  closeBuyerAlipayOrder,
-  getAlipayBuyerOrderStatus,
-  prepareAlipayCommunityOrder,
-} from "../../server/alipay-order-service.js";
-import { errorResponse } from "../../server/errors.js";
+import { AppError, errorResponse } from "../../server/errors.js";
 import { assertMethod, assertSameOrigin, noStoreHeaders } from "../../server/http.js";
 import {
-  requireAlipayPaymentEnabled,
   requireCommunitySiteOrigin,
+  requireWechatNativePaymentEnabled,
 } from "../../server/payment-availability.js";
-
-const validOrderId = (value: string): boolean => /^CG[A-Z0-9]{20,30}$/u.test(value);
+import {
+  closeBuyerWechatOrder,
+  getWechatBuyerOrderStatus,
+  prepareWechatNativeOrder,
+} from "../../server/wechat-native-order-service.js";
 
 const orderIdFrom = (request: Request): string => {
   const orderId = new URL(request.url).searchParams.get("id") || "";
-  if (!validOrderId(orderId)) {
-    throw new Error("invalid_order_id");
+  if (!/^CG[A-Z0-9]{20,30}$/u.test(orderId)) {
+    throw new AppError(400, "invalid_order_id", "订单号无效。" );
   }
   return orderId;
 };
@@ -31,28 +29,32 @@ export default {
       if (request.method === "POST") {
         assertSameOrigin(request);
         requireCommunitySiteOrigin(request);
-        requireAlipayPaymentEnabled();
-        const current = await closeConflictingPendingOrder(session.buyerKey, "ALIPAY_WEB");
+        requireWechatNativePaymentEnabled();
+        const current = await closeConflictingPendingOrder(session.buyerKey, "WECHAT_NATIVE");
         if (current?.status === "PAID") {
           return Response.json(
             { eligible: true, orderId: current.id },
             { headers: noStoreHeaders() },
           );
         }
-        const result = await prepareAlipayCommunityOrder(session.buyerKey);
-        return Response.json(result, { headers: noStoreHeaders() });
+        return Response.json(
+          await prepareWechatNativeOrder(session.buyerKey),
+          { headers: noStoreHeaders() },
+        );
+      }
+
+      const orderId = orderIdFrom(request);
+      if (request.method === "DELETE") {
+        assertSameOrigin(request);
+        const order = await closeBuyerWechatOrder(orderId, session.buyerKey);
+        return Response.json(
+          { orderId: order.id, status: order.status },
+          { headers: noStoreHeaders() },
+        );
       }
 
       const url = new URL(request.url);
-      const orderId = orderIdFrom(request);
-
-      if (request.method === "DELETE") {
-        assertSameOrigin(request);
-        const order = await closeBuyerAlipayOrder(orderId, session.buyerKey);
-        return Response.json({ orderId: order.id, status: order.status }, { headers: noStoreHeaders() });
-      }
-
-      const order = await getAlipayBuyerOrderStatus(
+      const order = await getWechatBuyerOrderStatus(
         orderId,
         session.buyerKey,
         url.searchParams.get("reconcile") === "1",
@@ -62,12 +64,6 @@ export default {
         { headers: noStoreHeaders() },
       );
     } catch (error) {
-      if (error instanceof Error && error.message === "invalid_order_id") {
-        return Response.json(
-          { error: { code: "invalid_order_id", message: "订单号无效。" } },
-          { status: 400, headers: noStoreHeaders() },
-        );
-      }
       return errorResponse(error);
     }
   },

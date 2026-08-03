@@ -5,6 +5,8 @@ import { getDatabaseUrl } from "./config.js";
 
 export type OrderStatus = "CLOSED" | "PAID" | "PENDING" | "REFUNDED" | "REVOKED";
 export type PaymentProvider = "ALIPAY" | "WECHAT";
+export type PaymentProduct = "ALIPAY_WEB" | "WECHAT_JSAPI" | "WECHAT_NATIVE";
+export type RefundStatus = "ABNORMAL" | "CLOSED" | "PROCESSING" | "SUCCESS";
 
 export type CommunityOrder = {
   alipay_buyer_key: string | null;
@@ -15,13 +17,18 @@ export type CommunityOrder = {
   currency: string;
   id: string;
   paid_at: string | Date | null;
+  payment_product: PaymentProduct;
   payment_provider: PaymentProvider;
   prepay_expires_at: string | Date | null;
   prepay_id: string | null;
   refund_request_no: string | null;
+  refund_status: RefundStatus | null;
   refunded_at: string | Date | null;
   status: OrderStatus;
   updated_at: string | Date;
+  wechat_code_expires_at: string | Date | null;
+  wechat_code_url: string | null;
+  wechat_refund_id: string | null;
   wechat_transaction_id: string | null;
 };
 
@@ -116,41 +123,57 @@ export const insertPendingOrder = async (
   buyerKey: string,
   amountCents: number,
   provider: PaymentProvider = "WECHAT",
+  product: PaymentProduct = provider === "ALIPAY" ? "ALIPAY_WEB" : "WECHAT_NATIVE",
 ): Promise<CommunityOrder> => {
   const sql = db();
   const rows = (await sql`
-    INSERT INTO community_orders (id, buyer_key, amount_cents, currency, payment_provider, status)
-    VALUES (${id}, ${buyerKey}, ${amountCents}, 'CNY', ${provider}, 'PENDING')
+    INSERT INTO community_orders (
+      id, buyer_key, amount_cents, currency, payment_provider, payment_product, status
+    )
+    VALUES (${id}, ${buyerKey}, ${amountCents}, 'CNY', ${provider}, ${product}, 'PENDING')
     RETURNING *
   `) as CommunityOrder[];
 
   return rows[0];
 };
 
-export const savePrepay = async (
+export const saveWechatNativeCode = async (
   id: string,
-  prepayId: string,
+  codeUrl: string,
   expiresAt: Date,
 ): Promise<void> => {
   const sql = db();
   await sql`
     UPDATE community_orders
-    SET prepay_id = ${prepayId}, prepay_expires_at = ${expiresAt.toISOString()}, updated_at = NOW()
-    WHERE id = ${id} AND status = 'PENDING'
+    SET wechat_code_url = ${codeUrl},
+        wechat_code_expires_at = ${expiresAt.toISOString()},
+        updated_at = NOW()
+    WHERE id = ${id}
+      AND payment_provider = 'WECHAT'
+      AND payment_product = 'WECHAT_NATIVE'
+      AND status = 'PENDING'
   `;
 };
 
-export const markOrderPaid = async (id: string, transactionId: string): Promise<void> => {
+export const markWechatOrderPaid = async (id: string, transactionId: string): Promise<boolean> => {
   const sql = db();
-  await sql`
+  const rows = await sql`
     UPDATE community_orders
     SET status = 'PAID',
         payment_provider = 'WECHAT',
+        payment_product = 'WECHAT_NATIVE',
         wechat_transaction_id = ${transactionId},
         paid_at = COALESCE(paid_at, NOW()),
         updated_at = NOW()
-    WHERE id = ${id} AND status IN ('PENDING', 'PAID')
+    WHERE id = ${id}
+      AND payment_provider = 'WECHAT'
+      AND payment_product = 'WECHAT_NATIVE'
+      AND status IN ('PENDING', 'PAID')
+      AND (wechat_transaction_id IS NULL OR wechat_transaction_id = ${transactionId})
+    RETURNING id
   `;
+
+  return rows.length === 1;
 };
 
 export const markAlipayOrderPaid = async (
@@ -163,6 +186,7 @@ export const markAlipayOrderPaid = async (
     UPDATE community_orders
     SET status = 'PAID',
         payment_provider = 'ALIPAY',
+        payment_product = 'ALIPAY_WEB',
         alipay_trade_no = ${tradeNo},
         alipay_buyer_key = COALESCE(alipay_buyer_key, ${buyerKey}),
         paid_at = COALESCE(paid_at, NOW()),
@@ -191,18 +215,45 @@ export const markOrderRefunded = async (
     UPDATE community_orders
     SET status = 'REFUNDED',
         refund_request_no = COALESCE(refund_request_no, ${refundRequestNo}),
+        refund_status = 'SUCCESS',
         refunded_at = COALESCE(refunded_at, NOW()),
         updated_at = NOW()
-    WHERE id = ${id} AND status IN ('PENDING', 'PAID')
+    WHERE id = ${id} AND status = 'PAID'
   `;
 };
 
-export const saveRefundRequest = async (id: string, refundRequestNo: string): Promise<void> => {
+export const saveRefundRequest = async (
+  id: string,
+  refundRequestNo: string,
+  provider: PaymentProvider,
+): Promise<void> => {
   const sql = db();
   await sql`
     UPDATE community_orders
-    SET refund_request_no = COALESCE(refund_request_no, ${refundRequestNo}), updated_at = NOW()
-    WHERE id = ${id} AND payment_provider = 'ALIPAY'
+    SET refund_request_no = COALESCE(refund_request_no, ${refundRequestNo}),
+        refund_status = COALESCE(refund_status, 'PROCESSING'),
+        updated_at = NOW()
+    WHERE id = ${id} AND payment_provider = ${provider}
+  `;
+};
+
+export const saveWechatRefund = async (
+  id: string,
+  refundRequestNo: string,
+  refundStatus: RefundStatus,
+  refundId: string | null,
+): Promise<void> => {
+  const sql = db();
+  await sql`
+    UPDATE community_orders
+    SET refund_request_no = COALESCE(refund_request_no, ${refundRequestNo}),
+        refund_status = ${refundStatus},
+        wechat_refund_id = COALESCE(wechat_refund_id, ${refundId}),
+        updated_at = NOW()
+    WHERE id = ${id}
+      AND payment_provider = 'WECHAT'
+      AND payment_product = 'WECHAT_NATIVE'
+      AND status = 'PAID'
   `;
 };
 
