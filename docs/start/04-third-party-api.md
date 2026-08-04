@@ -72,9 +72,9 @@ disable_response_storage = true
 preferred_auth_method = "apikey"
 
 
-[model_providers.ciyuan]
-name = "ciyuan" # 填你的模型提供商名字或者中转站名字，这里以词元为例
-base_url = "https://ciyuan.today/v1" # 填你的模型提供商的请求 URL
+[model_providers.example]
+name = "example" # 填你的模型提供商名字或者中转站名字，这里以示例服务商为例
+base_url = "https://api.example.com/v1" # 填你的模型提供商的请求 URL
 wire_api = "responses" # 这里不要变
 env_key = "OPENAI_API_KEY" # 这里将会通过环境变量的方式注入并启动Codex APP
 requires_openai_auth = false

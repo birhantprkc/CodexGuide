@@ -30,11 +30,6 @@ permalink: /sponsors/
     <strong>PPToken</strong>
     <span>提供 ChatGPT、Claude、Gemini 等主流 AI 模型 API 中转与密钥分发服务，支持低延迟、高可用、按量计费与订阅套餐。</span>
   </a>
-  <a class="sponsor-card" href="https://ciyuan.today/" target="_blank" rel="noopener noreferrer">
-    <img src="https://raw.githubusercontent.com/freestylefly/wesight/main/public/readme/sponsors/ciyuan-api.jpg" alt="词元 API" loading="lazy">
-    <strong>词元 API</strong>
-    <span>面向开发者的一站式 AI 接口平台，提供稳定、低延迟、高可用的大模型 API 服务。</span>
-  </a>
   <a class="sponsor-card" href="https://unity2.ai/register?source=canghe" target="_blank" rel="noopener noreferrer">
     <strong>Unity2.ai</strong>
     <span>社区赞助入口，更多服务信息请以赞助商官方页面为准。</span>
