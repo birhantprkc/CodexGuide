@@ -4,6 +4,8 @@ import { defineClientConfig } from "vuepress/client";
 import PaidCommunity from "./components/PaidCommunity.vue";
 import PaidCommunityAdmin from "./components/PaidCommunityAdmin.vue";
 import PaidCommunityResult from "./components/PaidCommunityResult.vue";
+import SiteVisitCounter from "./components/SiteVisitCounter.vue";
+import { loadSiteVisitStats } from "./site-visits.js";
 
 const analyticsHosts = new Set(["codexguide.ai", "www.codexguide.ai"]);
 
@@ -51,6 +53,10 @@ export default defineClientConfig({
     app.component("PaidCommunity", PaidCommunity);
     app.component("PaidCommunityAdmin", PaidCommunityAdmin);
     app.component("PaidCommunityResult", PaidCommunityResult);
+    app.component("SiteVisitCounter", SiteVisitCounter);
+
+    // 站内任意页面都计入访问，首页组件复用同一次请求的结果。
+    void loadSiteVisitStats();
 
     if (typeof window !== "undefined") {
       document.addEventListener("click", (event) => {

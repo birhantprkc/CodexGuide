@@ -17,6 +17,7 @@
     "community:generate-entry-qr": "node scripts/generate-community-entry-qr.mjs",
     "db:migrate": "node scripts/migrate-paid-community.mjs",
     "preview": "vuepress dev docs --host 0.0.0.0",
+    "site:seed-visits": "node scripts/seed-site-visits.mjs",
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.server.json --noEmit"
   },

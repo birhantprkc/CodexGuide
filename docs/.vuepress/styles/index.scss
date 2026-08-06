@@ -492,6 +492,15 @@
   margin-top: 1.5rem;
 }
 
+/* 访问统计位于首屏与首个板块之间，保持与原首屏一致的间距。 */
+.codex-home > .site-visit-counter {
+  margin-top: 1.5rem;
+}
+
+.codex-home > .site-visit-counter + .home-section {
+  margin-top: 2rem;
+}
+
 .home-section h2 {
   margin-top: 0;
   font-size: clamp(1.8rem, 3.8vw, 3rem);

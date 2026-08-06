@@ -21,6 +21,8 @@ actions:
 
 <div class="codex-home">
 
+<SiteVisitCounter />
+
 <section class="home-section home-core">
 
 <div class="home-section-kicker">核心内容</div>

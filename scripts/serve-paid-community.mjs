@@ -51,6 +51,7 @@ const routeFiles = new Map([
   ["/api/community/config", "api/community/config.js"],
   ["/api/community/qr", "api/community/qr.js"],
   ["/api/community/status", "api/community/status.js"],
+  ["/api/site/visits", "api/site/visits.js"],
   ["/api/wechat-pay/notify", "api/wechat-pay/notify.js"],
   ["/api/wechat-pay/order", "api/wechat-pay/order.js"],
   ["/api/wechat-pay/refund-notify", "api/wechat-pay/refund-notify.js"],
