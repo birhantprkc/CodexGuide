@@ -219,7 +219,52 @@ CodexGuide 不推荐具体商家，也不保证任何第三方礼品卡渠道的
 
 ## 方法三：安卓 Google Play（备选）
 
-逻辑与苹果礼品卡类似：在安卓设备上切换到对应 Google 账号区域，通过 Google Play 购买礼品卡充值后订阅。有部分用户反映这条路可行，但实测稳定性不如苹果礼品卡，可作为备选方案。
+### Visa 卡购买
+
+适合没有 iOS 设备、但拥有能够境外支付的 Visa 卡的用户。整个流程在 Google Play 与手机 ChatGPT 上完成。
+
+**准备物品：**
+
+- 一台 Android 设备（能够正常安装 Google Play 即可）
+- 注册好的 Google 账号
+- 注册好的 ChatGPT 账号
+- 一张能够进行海外支付的 Visa 卡
+
+**操作步骤：**
+
+1. 进入 PC 端 Google Play，登录谷歌账号，点击右上角头像，将该页面拉到最下方，找到服务条款项目：
+
+![服务条款](../images/subscribe-google-play-terms-of-service.png)
+
+找到其中的国家/地区版本，记住此时的地区：
+
+![国家/地区版本](../images/subscribe-google-play-country-version.png)
+
+2. 打开你的 Clash 等代理，选择相同的地区。
+
+3. 回到 Google Play 页面，点击右侧下拉菜单中的「付款和订阅」：
+
+![付款和订阅](../images/subscribe-google-play-payments-subscriptions.png)
+
+4. 点击「添加支付方式」，添加信用卡和借记卡，此时添加你能够支付的 Visa 卡。注意地区与前面服务条款中的地区保持一致；必要时可使用 DeepSeek 等生成真实的国外地址。
+
+![添加支付方式](../images/subscribe-google-play-add-payment-method.png)
+
+5. 完成后查看手机端 Google Play，点击头像打开设置：
+
+![打开设置](../images/subscribe-google-play-mobile-settings.png)
+
+点击「常规」下的「账号和设备偏好设置」：
+
+![账号和设备偏好设置](../images/subscribe-google-play-account-preferences.png)
+
+查看「国家/地区和个人资料」，确认地区与上文服务条款中的地区一致：
+
+![国家/地区和个人资料](../images/subscribe-google-play-country-profile.png)
+
+6. 在手机端 Google Play 中下载 ChatGPT，登录账号后直接点击升级 Plus，然后支付即可。若支付不成功，检查该 Visa 卡是否支持人民币付款；部分卡只支持对应地区货币。
+
+![升级 Plus 支付情况](../images/subscribe-google-play-chatgpt-plus-checkout.png)
 
 ## 方法四：AI MEMBER 卡密自助充值（省去海外支付步骤-操作更简单）
 
