@@ -64,6 +64,15 @@ const moreItems = [
   { text: "赞助商", icon: "star", link: "/sponsors/" },
 ];
 
+const productItems = [
+  {
+    text: "皮肤",
+    icon: "palette",
+    link: "https://theme.codexguide.ai/",
+    ariaLabel: "CodexGuide 主题皮肤",
+  },
+];
+
 const publicSiteUrl = process.env.PUBLIC_SITE_URL?.trim();
 const configuredCommunitySiteUrl = process.env.COMMUNITY_SITE_URL?.trim();
 const isSeparateCommunitySite =
@@ -99,21 +108,21 @@ export default navbar([
     children: recipeItems,
   },
   {
-    text: "皮肤",
-    icon: "palette",
-    link: "https://theme.codexguide.ai/",
-    ariaLabel: "CodexGuide 主题皮肤",
-  },
-  {
-    text: "更多",
-    icon: "more",
-    ariaLabel: "更多导航",
-    children: moreItems,
+    text: "产品",
+    icon: "app",
+    ariaLabel: "产品导航",
+    children: productItems,
   },
   {
     text: "交流群",
     icon: "message",
     link: communityJoinLink,
     ariaLabel: "交流群",
+  },
+  {
+    text: "更多",
+    icon: "more",
+    ariaLabel: "更多导航",
+    children: moreItems,
   },
 ]);
