@@ -121,8 +121,16 @@ description: "ChatGPT Plus 与 Pro 订阅指南，整理 Codex 可用性、账�
 
 ![](https://cdn.canghecode.com/blog/20260802170049.png)
 
+::: tip
+这里如果用的是招行 visa 卡，金额过多，会触发人工审核，一般会被拒绝掉，建议分多次购买。
+:::
 
 
+### 第三方
+
+https://shop.pockyt.io/index
+
+这里也可以购买，信息来源于社区，建议自行甄别。
 
 
 ## 方法二：土耳其区 App Store（第三方经验，价格优先）
