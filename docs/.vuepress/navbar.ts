@@ -41,9 +41,6 @@ const recipeItems = docItems(recipeItemsSource);
 const manualItems = docItems(manualItemsSource);
 
 const moreItems = [
-  { text: "快速上手", icon: "rocket", link: "/start/" },
-  { text: "进阶教程", icon: "book", link: "/advanced/" },
-  { text: "实战案例", icon: "lightbulb", link: "/recipes/" },
   {
     text: "参考手册",
     icon: "gear",
