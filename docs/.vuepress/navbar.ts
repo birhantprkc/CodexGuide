@@ -51,13 +51,17 @@ const moreItems = [
     ariaLabel: "参考手册导航",
     children: manualItems,
   },
-  { text: "社区共建", icon: "people", link: "/community/roadmap.md" },
+  {
+    text: "社区共建",
+    icon: "people",
+    link: "/community/roadmap.md",
+    ariaLabel: "社区共建",
+    children: [
+      { text: "社区共建图", icon: "message", link: "/community/roadmap.md" },
+      { text: "社区教程合集", icon: "book", link: "/community/tutorials.md" },
+    ],
+  },
   { text: "赞助商", icon: "star", link: "/sponsors/" },
-];
-
-const communityItems = [
-  { text: "社区共建图", icon: "message", link: "/community/roadmap.md" },
-  { text: "社区教程合集", icon: "book", link: "/community/tutorials.md" },
 ];
 
 const publicSiteUrl = process.env.PUBLIC_SITE_URL?.trim();
@@ -95,12 +99,6 @@ export default navbar([
     children: recipeItems,
   },
   {
-    text: "赞助商",
-    icon: "star",
-    link: "/sponsors/",
-    ariaLabel: "赞助商",
-  },
-  {
     text: "皮肤",
     icon: "palette",
     link: "https://theme.codexguide.ai/",
@@ -111,13 +109,6 @@ export default navbar([
     icon: "more",
     ariaLabel: "更多导航",
     children: moreItems,
-  },
-  {
-    text: "社区共建",
-    icon: "people",
-    link: "/community/roadmap.md",
-    ariaLabel: "社区共建",
-    children: communityItems,
   },
   {
     text: "交流群",
