@@ -16,6 +16,9 @@ description: "Codex 桌面 App 下载与安装教程，说明 macOS、Windows �
 打开 [chatgpt.com/codex/get-started](https://chatgpt.com/codex/get-started/)，页面中央会显示对应系统的下载按钮。
 
 
+>如果第一次注册，也可以接受邀请：[chatgpt.com/codex/](https://chatgpt.com/accept-referral?referral_context=eyJyZWZlcnJhbF9pZCI6IjZhNzk3YmQ2M2FiMDgxOTE5MTk4M2I3OTg3NTRlNzRiIiwicmVmZXJyYWxfdHlwZSI6ImNvZGV4X3JlZmVycmFsX2NvbnN1bWVyIiwiaW52aXRlX3BhZ2VfYmVuZWZpdF90ZXh0IjoiIiwiaGFzX3Jld2FyZHMiOmZhbHNlLCJlbWFpbF9yZWZlcnJlZF90byI6IjI2ODk0NTg2NTZAcXEuY29tIiwid29ya3NwYWNlX2lkIjpudWxsLCJ3b3Jrc3BhY2VfbmFtZSI6bnVsbCwicmVkZW1wdGlvbl9hY3Rpb24iOiJjb2RleF90dXJuIn0)
+
+
 **macOS：**
 
 ![Codex 桌面 App 下载页 macOS](https://cdn.canghecode.com/codexguide/docs/images/codex-app-download-macos-options.png)
