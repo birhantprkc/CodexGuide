@@ -13,7 +13,6 @@ const navbarDropdownLinks: Record<string, string> = {
   快速上手导航: "/start/",
   进阶教程导航: "/advanced/",
   实战案例导航: "/recipes/",
-  参考手册导航: "/manual/",
   社区共建: "/community/roadmap.html",
   产品导航: "https://theme.codexguide.ai/",
 };

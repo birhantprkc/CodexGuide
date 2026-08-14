@@ -134,10 +134,6 @@
   font-size: 1rem;
 }
 
-.vp-nav-links > .vp-nav-item:has(> .vp-dropdown-wrapper > .vp-dropdown-title[aria-label="更多导航"]) {
-  display: none;
-}
-
 .vp-dropdown-title {
   gap: 0.15rem;
 }
@@ -160,10 +156,6 @@
 }
 
 @media (max-width: 1500px) {
-  .vp-nav-links > .vp-nav-item:has(> .vp-dropdown-wrapper > .vp-dropdown-title[aria-label="更多导航"]) {
-    display: block;
-  }
-
   .vp-nav-links > .vp-nav-item:has(> .vp-dropdown-wrapper > .vp-dropdown-title[aria-label="社区共建"]) {
     display: none;
   }

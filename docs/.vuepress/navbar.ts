@@ -41,13 +41,8 @@ const recipeItems = docItems(recipeItemsSource);
 const manualItems = docItems(manualItemsSource);
 
 const moreItems = [
-  {
-    text: "参考手册",
-    icon: "gear",
-    link: "/manual/",
-    ariaLabel: "参考手册导航",
-    children: manualItems,
-  },
+  { text: "赞助商", icon: "star", link: "/sponsors/" },
+  ...manualItems,
   {
     text: "社区共建",
     icon: "people",
@@ -58,7 +53,6 @@ const moreItems = [
       { text: "社区教程合集", icon: "book", link: "/community/tutorials.md" },
     ],
   },
-  { text: "赞助商", icon: "star", link: "/sponsors/" },
 ];
 
 const productItems = [
