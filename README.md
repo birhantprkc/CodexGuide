@@ -38,6 +38,8 @@
 > 从第一次上手，到把 Codex 接入真实工作流；帮助不同背景的人用 Codex 完成开发、创作、研究、自动化与团队协作。
 > 如果这个项目帮你节省了摸索时间，欢迎点亮 Star，让更多人看到它。
 
+<p align="right">感谢<a href="https://www.packyapi.ai/register?aff=CV0c">packyapi</a>的独家赞助</p>
+
 ## 在线网站
 
 **CodexGuide 的在线阅读地址是 [codexguide.ai](https://codexguide.ai/)。**
