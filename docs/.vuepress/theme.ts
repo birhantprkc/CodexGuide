@@ -37,7 +37,8 @@ export default hopeTheme({
   focus: false,
   breadcrumb: true,
   displayFooter: true,
-  footer: "MIT Licensed | Copyright © 2026 canghe",
+  footer:
+    '感谢 <a href="https://www.packyapi.ai/register?aff=CV0c" target="_blank" rel="noopener noreferrer">PackyAPI</a> 的独家赞助 · MIT Licensed',
   pageInfo: ["Author", "Category", "Tag", "Date", "Original", "Word", "ReadingTime"],
 
   blog: false,
