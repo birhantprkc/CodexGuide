@@ -92,7 +92,7 @@ CodexGuide 想做的不是命令速查表，而是一份面向真实任务的实
 
 | 赞助商 | 介绍 |
 | ------ | ---- |
-| <a href="https://unity2.ai/register?source=canghe"><img src="./assets/sponsors/unity2-ai.jpg" alt="Unity2.ai" width="240"></a> | 感谢 Unity2.ai 赞助了本项目！Unity2.ai 是面向个人开发者、团队和企业的高性能 AI 模型 API 中转平台，长期服务国内头部企业，日均承载超 300 亿 token 调用，支持 5000 RPM 级高并发。支持余额计费、首充赠额、组合订阅、企业开票和专属对接。通过此[链接](https://unity2.ai/register?source=canghe)注册可领取 $2 余额，加入官方群再送 $10 余额，最高可领 $12 免费额度。 |
+| <a href="https://www.packyapi.ai/register?aff=CV0c"><img src="./assets/sponsors/packycode.png" alt="PackyCode" width="240"></a> | 感谢 PackyCode（PackyAPI）对本项目的独家赞助！PackyCode 是一家稳定、高效的 API 中转服务商，提供 Claude Code、Codex、Gemini 等多种中转服务，具备自动故障转移、智能路由和无限并发等功能，让 AI 编程成为真正的生产力工具。通过此[链接](https://www.packyapi.ai/register?aff=CV0c)注册，立即开始使用。 |
 | <a href="https://payforchat.com/register?ref=XJKHTC7N"><img src="./assets/sponsors/payforchat.jpg" alt="PayForChat" width="240"></a> | PayForChat 支持 ChatGPT、Claude 会员开通与充值：微信直付、无需海外信用卡，官方渠道为你自己的账号充值，不成功全额退款，中文售后、可开收据。点击[这里](https://payforchat.com/register?ref=XJKHTC7N)注册体验。 |
 | <a href="https://www.ai-member.icu?from=4068"><img src="./assets/sponsors/ai-member.jpg" alt="AI-MEMBER 会员代充" width="240"></a> | AI-MEMBER 面向个人用户、开发者与团队，提供 ChatGPT Plus+Pro充值、Claude Pro、Gemini Pro、Gork Super 等正价会员代充服务。点击[这里](https://www.ai-member.icu?from=4068)了解服务，查看[教程](https://www.ai-member.icu?from=4068)。 |
 | <a href="https://getgpt.pro/i/codexguide"><img src="./assets/sponsors/getgpt-pro.jpg" alt="GetGPT Pro" width="240"></a> | GetGPT Pro 提供 ChatGPT、Claude 等 AI 订阅开通与充值服务，支持自助下单、快速到账与售后支持。 |

@@ -9,7 +9,7 @@ permalink: /sponsors/
 
 # 赞助商 {.sponsors-page-title}
 
-感谢以下项目和服务支持 CodexGuide 的持续建设。赞助信息用于帮助读者了解相关服务，具体价格、可用性、服务条款和售后政策请以赞助商官方页面为准。
+感谢以下项目和服务支持 CodexGuide 的持续建设。赞助信息用于帮助读者了解相关服务，具体价格、可用性、服务条款和售后政策请以赞助商官方页面为准。感谢<a href="https://www.packyapi.ai/register?aff=CV0c" target="_blank" rel="noopener noreferrer">packyapi</a>的独家赞助
 
 <div class="sponsor-grid">
   <a class="sponsor-card" href="https://getgpt.pro/i/codexguide" target="_blank" rel="noopener noreferrer">
