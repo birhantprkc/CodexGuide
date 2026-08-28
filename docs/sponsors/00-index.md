@@ -4,7 +4,7 @@ permalink: /sponsors/
 ---
 
 ::: tip 最后核对
-赞助信息最后核对日期：2026-07-24。本页展示的赞助项目、价格、可用性、服务条款和售后政策请以赞助商官方页面为准。
+赞助信息最后核对日期：2026-08-28。本页展示的赞助项目、价格、可用性、服务条款和售后政策请以赞助商官方页面为准。
 :::
 
 # 赞助商 {.sponsors-page-title}
@@ -16,6 +16,11 @@ permalink: /sponsors/
     <img src="https://cdn.canghecode.com/codexguide/assets/sponsors/getgpt-pro.jpg" alt="GetGPT Pro" loading="lazy">
     <strong>GetGPT Pro</strong>
     <span>提供 ChatGPT、Claude 等 AI 订阅开通与充值服务，支持自助下单、快速到账与售后支持。</span>
+  </a>
+  <a class="sponsor-card" href="https://apimart.ai/register?aff=oQgzUQ" target="_blank" rel="noopener noreferrer">
+    <img src="https://raw.githubusercontent.com/freestylefly/awesome-gpt-image-2/main/data/images/sponsors/apimart.jpg" alt="APIMart" loading="lazy">
+    <strong>APIMart</strong>
+    <span>专注 AI 图片和视频生成的低价 API 平台，提供统一异步 API，支持按量付费且无月费。</span>
   </a>
   <div class="sponsor-card">
     <a class="sponsor-primary-link" href="https://www.ai-member.icu?from=4068" target="_blank" rel="noopener noreferrer">
