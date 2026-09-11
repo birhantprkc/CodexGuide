@@ -49,7 +49,7 @@ export default defineUserConfig({
     ],
     ["meta", { name: "theme-color", content: "#0f766e" }],
     ["meta", { name: "format-detection", content: "telephone=no" }],
-    ["link", { rel: "icon", href: "/logo.jpg", type: "image/jpeg" }],
+    ["link", { rel: "icon", href: "https://cdn.canghecode.com/codexguide/docs/.vuepress/public/logo.svg", type: "image/svg+xml" }],
   ],
 
   plugins: [

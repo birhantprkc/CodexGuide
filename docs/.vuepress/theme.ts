@@ -18,8 +18,8 @@ const isHomePage = (path: string): boolean => path === "/" || path === "/index.h
 
 export default hopeTheme({
   hostname: `${siteUrl}/`,
-  logo: "/logo.jpg",
-  favicon: "/logo.jpg",
+  logo: "https://cdn.canghecode.com/codexguide/docs/.vuepress/public/logo.svg",
+  favicon: "https://cdn.canghecode.com/codexguide/docs/.vuepress/public/logo.svg",
 
   author: {
     name: "canghe",
@@ -91,7 +91,7 @@ export default hopeTheme({
                   url: `${siteUrl}/`,
                   logo: {
                     "@type": "ImageObject",
-                    url: `${siteUrl}/logo.jpg`,
+                    url: `https://cdn.canghecode.com/codexguide/docs/.vuepress/public/logo.svg`,
                   },
                   sameAs: ["https://github.com/freestylefly/CodexGuide"],
                 },
@@ -151,7 +151,7 @@ export default hopeTheme({
                 url: `${siteUrl}/`,
                 logo: {
                   "@type": "ImageObject",
-                  url: `${siteUrl}/logo.jpg`,
+                  url: `https://cdn.canghecode.com/codexguide/docs/.vuepress/public/logo.svg`,
                 },
               },
             },
