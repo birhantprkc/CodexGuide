@@ -4,7 +4,7 @@ icon: home
 title: OpenAI Codex 中文教程与实战指南
 description: "CodexGuide 是面向中文用户的 OpenAI Codex 教程，帮助你从第一次任务快速上手Codex，并通过进阶教程与社区实践掌握实用的技巧。"
 pageClass: codex-home-page
-heroImage: https://cdn.canghecode.com/codexguide/docs/.vuepress/public/logo.svg
+heroImage: /logo.jpg
 heroText: CodexGuide
 tagline: 一站式掌握 Codex App、CLI、配置与实战。让 AI 编程助手真正进入你的日常工作
 actions:
