@@ -99,6 +99,7 @@ CodexGuide 想做的不是命令速查表，而是一份面向真实任务的实
 | <a href="https://getgpt.pro/i/codexguide"><img src="./assets/sponsors/getgpt-pro.jpg" alt="GetGPT Pro" width="240"></a> | GetGPT Pro 提供 ChatGPT、Claude 等 AI 订阅开通与充值服务，支持自助下单、快速到账与售后支持。 |
 | <a href="https://pptoken.cc/"><img src="https://raw.githubusercontent.com/freestylefly/wesight/main/public/readme/sponsors/pptoken.png" alt="PPToken" width="240"></a> | 项目赞助。PPToken 提供 ChatGPT、Claude、Gemini 等主流 AI 模型 API 中转与密钥分发服务，支持低延迟、高可用、按量计费与订阅套餐灵活选择。 |
 | <a href="https://sui-xiang.com/"><img src="./assets/sponsors/sui-xiang-ai-gateway.jpg" alt="随想AI中转站" width="240"></a> | 感谢随想AI中转站对本项目的赞助！随想AI中转站 是一家可靠高效的 API 中继服务提供商，提供 Claude、Codex、Gemini 等的中继服务。注重隐私的中转站·无数据倒卖·无模型掺水，隐私，透明，极速售后。新账户注册每日签到就送 0.5 元测试额度，充值额度 1:1，无需订阅，按量付费。多线路冗余、跨区域容灾、自动故障切换，长链路 SSE 不中断。99.9% 可用性，关键调用从不掉队。 |
+| <a href="https://ergouapi.com/r/gh-codexguide"><img src="./assets/sponsors/ergou-api.png" alt="二狗 API" width="240"></a> | 感谢二狗 API 对本项目的赞助！[二狗 API](https://ergouapi.com/r/gh-codexguide) 是大模型 API 中转站，全站提供 0.1x～0.2x 低倍率，支持 Claude、GPT、Grok 等多个国内外原版大模型接口，并通过 IPLC 线路与住宅双 ISP 冗余保障全国范围内的稳定低延迟访问。欢迎开发者和工作室通过此[注册链接](https://ergouapi.com/r/gh-codexguide)了解并使用。 |
 
 ## 你会在这里看到什么
 

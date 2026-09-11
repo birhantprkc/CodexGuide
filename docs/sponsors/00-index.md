@@ -4,7 +4,7 @@ permalink: /sponsors/
 ---
 
 ::: tip 最后核对
-赞助信息最后核对日期：2026-08-28。本页展示的赞助项目、价格、可用性、服务条款和售后政策请以赞助商官方页面为准。
+赞助信息最后核对日期：2026-09-11。本页展示的赞助项目、价格、可用性、服务条款和售后政策请以赞助商官方页面为准。
 :::
 
 # 赞助商 {.sponsors-page-title}
@@ -46,6 +46,11 @@ permalink: /sponsors/
   <a class="sponsor-card" href="https://muskapi.com/register?utm_source=codexguide&utm_medium=website" target="_blank" rel="noopener noreferrer">
     <strong>Muskapi</strong>
     <span>社区赞助入口，更多服务信息请以赞助商官方页面为准。</span>
+  </a>
+  <a class="sponsor-card" href="https://ergouapi.com/r/gh-codexguide" target="_blank" rel="noopener noreferrer">
+    <img src="/assets/sponsors/ergou-api.png" alt="二狗 API" loading="lazy">
+    <strong>二狗 API</strong>
+    <span>提供 Claude、GPT、Grok 等大模型 API 中转服务，全站 0.1x～0.2x 低倍率，并采用 IPLC 线路与住宅双 ISP 冗余。</span>
   </a>
 </div>
 
