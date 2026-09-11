@@ -47,11 +47,11 @@ permalink: /sponsors/
     <strong>Muskapi</strong>
     <span>社区赞助入口，更多服务信息请以赞助商官方页面为准。</span>
   </a>
-  <a class="sponsor-card" href="https://ergouapi.com/r/gh-codexguide" target="_blank" rel="noopener noreferrer">
+  <div class="sponsor-card">
     <img src="/assets/sponsors/ergou-api.jpg" alt="二狗 API" loading="lazy">
     <strong>二狗 API</strong>
-    <span>提供 Claude、GPT、Grok 等大模型 API 中转服务，全站 0.1x～0.2x 低倍率，并采用 IPLC 线路与住宅双 ISP 冗余。</span>
-  </a>
+    <span>接入二狗，稳如老狗。<a href="https://ergouapi.com/r/gh-codexguide" target="_blank" rel="noopener noreferrer">二狗 API</a> 中转站，全站 0.1x～0.2x 超低倍率，提供 Claude / GPT / Grok 等多个国内外 100% 纯血大模型接口。<br><br>顶级 IPLC 线路 + 住宅双 ISP 冗余，确保全国范围稳定低延迟访问。欢迎各位开发者、工作室 <a href="https://ergouapi.com/r/gh-codexguide" target="_blank" rel="noopener noreferrer">注册使用</a>。</span>
+  </div>
 </div>
 
 ## 成为赞助商
